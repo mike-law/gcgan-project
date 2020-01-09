@@ -3,7 +3,7 @@ import torchvision
 import torchvision.transforms as transforms
 import torch.utils.data as data
 import os
-from PIL import Image, ImageOps
+from PIL import Image
 
 """
 For now, using the 28x28 version requires having the unscaled USPS gallery saved in the same
@@ -23,11 +23,12 @@ class get_usps_dataset_28x28(data.Dataset):
             for num in range(10):
                 folder = os.path.join(self.root, 'Numerals', str(num))
                 filenames = [os.path.join(folder, img_name) for img_name in os.listdir(folder)
-                             if img_name.endswith('a.png')] # only get the 'a' images else too many
+                             if img_name.endswith('.png')]
 
                 imgs_processed = 0
                 for img_file in filenames:
-                    img_tensor = self.transforms(Image.open(img_file))
+                    # For some reason if not converted to B&W, there are grey patches in the tensor repr of image (Why?)
+                    img_tensor = self.transforms(Image.open(img_file).convert('1'))
                     self.images = img_tensor if self.images is None else torch.cat((self.images, img_tensor))
                     self.labels = torch.tensor([num]) if self.labels is None else \
                         torch.cat((self.labels, torch.tensor([num])))
@@ -41,7 +42,8 @@ class get_usps_dataset_28x28(data.Dataset):
             filenames = [os.path.join(folder, img_name) for img_name in os.listdir(folder)
                          if img_name.endswith('.png')]
             for img_file in filenames:
-                img_tensor = self.transforms(Image.open(img_file))
+                # For some reason if not converted to B&W, there are grey patches in the tensor repr of image (Why?)
+                img_tensor = self.transforms(Image.open(img_file).convert('1'))
                 self.images = img_tensor if self.images is None else torch.cat((self.images, img_tensor))
             # Dummy -1 labels
             self.labels = torch.full(size=(len(filenames),), fill_value=-1)
@@ -80,37 +82,37 @@ class ComposedTransforms:
     ])
 
 
-def get_train_loaders(config):
-    usps_spec = {'mode': 'train',
-                 'root': 'USPSdata',
-                 'transforms': ComposedTransforms.usps_transf,
-                 'max_imgs_per_num': 220}
+def get_loaders(config):
+    # Get train loaders
+    usps_train_spec = {'mode': 'train',
+                       'root': 'USPSdata',
+                       'transforms': ComposedTransforms.usps_transf,
+                       'max_imgs_per_num': 600}
 
-    usps_dataset = get_usps_dataset_28x28(usps_spec)
-    usps_loader = data.DataLoader(dataset=usps_dataset,
-                                  batch_size=config.batch_size,
-                                  shuffle=True,
-                                  num_workers=config.num_workers)
+    usps_train_dataset = get_usps_dataset_28x28(usps_train_spec)
+    usps_train_loader = data.DataLoader(dataset=usps_train_dataset,
+                                        batch_size=config.batch_size,
+                                        shuffle=True,
+                                        num_workers=config.num_workers)
 
-    mnist_dataset = torchvision.datasets.MNIST(root='./MNIST',
-                                               train=True,
-                                               download=True,
-                                               transform=ComposedTransforms.mnist_transf)
+    mnist_train_dataset = torchvision.datasets.MNIST(root='./MNIST',
+                                                     train=True,
+                                                     download=True,
+                                                     transform=ComposedTransforms.mnist_transf)
 
-    mnist_loader = data.DataLoader(dataset=mnist_dataset,
-                                   batch_size=config.batch_size,
-                                   shuffle=True,
-                                   num_workers=config.num_workers)
-    return usps_loader, mnist_loader
+    mnist_train_loader = data.DataLoader(dataset=mnist_train_dataset,
+                                         batch_size=config.batch_size,
+                                         shuffle=True,
+                                         num_workers=config.num_workers)
 
-
-def get_usps_test_loader(batch_size):
-    usps_spec = {'mode': 'test',
-                 'root': 'USPSdata',
-                 'transforms': ComposedTransforms.usps_transf,
-                 'max_imgs_per_num': None}
-    usps_test_dataset = get_usps_dataset_28x28(usps_spec)
+    # Get USPS train loader
+    usps_test_spec = {'mode': 'test',
+                      'root': 'USPSdata',
+                      'transforms': ComposedTransforms.usps_transf,
+                      'max_imgs_per_num': None}
+    usps_test_dataset = get_usps_dataset_28x28(usps_test_spec)
     usps_test_loader = data.DataLoader(dataset=usps_test_dataset,
-                                       batch_size=batch_size,
+                                       batch_size=4,
                                        shuffle=True)
-    return usps_test_loader
+
+    return usps_train_loader, mnist_train_loader, usps_test_loader

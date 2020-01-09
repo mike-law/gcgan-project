@@ -172,7 +172,11 @@
       <workItem from="1578475857393" duration="116000" />
       <workItem from="1578476210366" duration="1548000" />
       <workItem from="1578477998467" duration="18231000" />
-      <workItem from="1578499055554" duration="2365000" />
+      <workItem from="1578499055554" duration="2861000" />
+      <workItem from="1578529437112" duration="11485000" />
+      <workItem from="1578552892844" duration="7020000" />
+      <workItem from="1578563593660" duration="6626000" />
+      <workItem from="1578582092738" duration="5133000" />
     </task>
     <servers />
   </component>
@@ -256,27 +260,16 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="968" height="528" key="XDebugger.FullValuePopup/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578280961751" />
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1578499056473">
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1578582106073">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1578459590875" />
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1578582106073" />
     <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578499056473" />
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1578443778709" />
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1578529438370" />
     <state x="2543" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1578492220786">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2543" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578492220786" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/networks.py</url>
-          <line>404</line>
-          <option name="timeStamp" value="8" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/gcgan$usps_to_mnist_main.coverage" NAME="usps_to_mnist_main Coverage Results" MODIFIED="1578289330322" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

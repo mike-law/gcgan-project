@@ -402,7 +402,7 @@ class NLayerDiscriminator(nn.Module):
         else:
             use_bias = norm_layer == nn.InstanceNorm2d
 
-        kw = 2 # Originally 4 but need to decrease since using 16x16 imgs...
+        kw = 4 # need to decrease if using 16x16 imgs
         padw = 1
         sequence = [
             nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=padw),

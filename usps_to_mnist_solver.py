@@ -1,9 +1,10 @@
 import torch
 import torch.optim as optim
 import torch.nn as nn
-import itertools
+import mnist_model
 import networks
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 """
 USPS -> MNIST solver
@@ -34,14 +35,14 @@ class Solver(object):
         # Nets
         # let's use a single network for both generators
         self.G_UM = networks.define_G(input_nc=1, output_nc=1, ngf=self.config.g_conv_dim,
-                                      which_model_netG='resnet_9blocks', norm='batch', init_type='normal',
+                                      which_model_netG=self.config.which_model_netG, norm='batch', init_type='normal',
                                       gpu_ids=self.gpu_ids)
         # self.G_gc_UM = networks.define_G(input_nc=1, output_nc=1, ngf=32, which_model_netG='resnet_6blocks',
         #                                  norm='batch', init_type='normal', gpu_ids=self.gpu_ids)
 
         if self.isTrain:
             # two separate discriminators
-            self.D_M = networks.define_D(input_nc=1, ndf=self.config.d_conv_dim, which_model_netD='basic',
+            self.D_M = networks.define_D(input_nc=1, ndf=self.config.d_conv_dim, which_model_netD=self.config.which_model_netD,
                                          n_layers_D=3, norm='batch', use_sigmoid=True, init_type='normal',
                                          gpu_ids=self.gpu_ids)
             # self.D_gc_M = networks.define_D(input_nc=1, ndf=self.config.d_conv_dim, which_model_netD='basic',
@@ -159,9 +160,11 @@ class Solver(object):
         self.G_optim.zero_grad()
 
         # GAN loss
-        loss_g_gan = self.criterionGAN(pred_d_fake.cpu(), True)  # * 0.5
+        if self.config.lambda_gan > 0:
+            loss_g_gan = self.criterionGAN(pred_d_fake.cpu(), True)  # * 0.5
         # loss_g_gan += self.criterionGAN(pred_d_gc_fake.cpu(), True) * 0.5
-        loss = loss_g_gan.cuda()
+            loss_g_gan *= self.config.lambda_gan
+            loss = loss_g_gan.cuda()
 
         # if self.config.lambda_gc > 0:
         #     # GC loss
@@ -170,15 +173,17 @@ class Solver(object):
         #     loss_g_gc *= self.config.lambda_gc
         #     loss += loss_g_gc
 
-        # if self.config.use_reconst_loss:
+        # if self.config.lambda_reconst > 0:
         #     # Id loss (only penalises G)
         #     # Based on the idea that G(real_mnist) should be mnist, and G(real_mnist_rot) should be mnist_rot.
         #     loss_g_idt = 0.5 * self.criterionIdt(self.G_UM(real_mnist), real_mnist)
         #     loss_g_idt += 0.5 * self.criterionIdt(self.G_UM(real_mnist_rot), real_mnist_rot)
+        #     loss_g_idt *= self.config.lambda_reconst ???
         #     loss += loss_g_idt
 
-        # if self.use_distance_loss:
+        # if self.config.lambda_dist > 0:
         #     ####
+        #   ... loss_g_dist *= self.config.lambda_dist
 
         loss.backward()
         self.G_optim.step()
@@ -203,3 +208,33 @@ class Solver(object):
                 whole_grid = torch.cat((inputs_joined, outputs_joined), dim=1).cpu()
                 cols[i].imshow(whole_grid, cmap='gray')
             fig.show()
+
+    def test(self, fake_mnist_loader, pretrained_mnist_model=None):
+        # run a pretrained MNIST model over transformed images from self.usps_test_dataset
+        if pretrained_mnist_model is None:
+            print("---------- Initialising DataLoaders for MNIST model ----------")
+            train_loader, test_loader = mnist_model.get_loaders(batch_size=32)
+            print("---------- Initialising model ----------")
+            pretrained_model, optimizer, lr_scheduler = mnist_model.init_model()
+            print("---------- Training model ----------")
+            pretrained_model = mnist_model.train(pretrained_model, optimizer, lr_scheduler, train_loader, num_epochs=4)
+            print("---------- Finished training ----------")
+            mnist_model.save_model(pretrained_model)
+        else:
+            print("---------- Loading model ----------")
+            pretrained_model = mnist_model.Classifier()
+            checkpoint = torch.load(pretrained_mnist_model)
+            pretrained_model.load_state_dict(checkpoint)
+            pretrained_model = pretrained_model.cuda()
+        print("---------- Testing against GAN ----------")
+        accuracy = mnist_model.test(pretrained_model, fake_mnist_loader)
+        return accuracy
+
+    def save_models(self):
+        # later extend to saving all of G_UM, G_gc_UM, etc.
+        date_str = datetime.now().strftime("%y%m%d-%H%M%S")
+        model_name = date_str + "-USPStoMNISTmodel.pth"
+        model_path = "./models/USPStoMNIST/" + model_name
+        print("Saving model to {}".format(model_path))
+        torch.save(self.G_UM.state_dict(), model_path)
+        return model_path

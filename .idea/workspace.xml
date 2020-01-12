@@ -35,7 +35,7 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="settings.editor.selected.configurable" value="web.server" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -62,6 +62,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="mnist_model" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="gcgan" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mnist_model.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -136,6 +158,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.usps_to_mnist_main" />
+        <item itemvalue="Python.mnist_model" />
         <item itemvalue="Python.usps_datasets" />
         <item itemvalue="Python.test" />
       </list>
@@ -177,6 +200,11 @@
       <workItem from="1578552892844" duration="7020000" />
       <workItem from="1578563593660" duration="6626000" />
       <workItem from="1578582092738" duration="5133000" />
+      <workItem from="1578616983843" duration="1410000" />
+      <workItem from="1578665951613" duration="1412000" />
+      <workItem from="1578710139771" duration="2423000" />
+      <workItem from="1578712647516" duration="18535000" />
+      <workItem from="1578794981217" duration="11073000" />
     </task>
     <servers />
   </component>
@@ -190,6 +218,10 @@
     </ignored-roots>
   </component>
   <component name="WindowStateProjectService">
+    <state x="2472" y="178" key="#Inspections" timestamp="1578712445804">
+      <screen x="1920" y="0" width="1920" height="1040" />
+    </state>
+    <state x="2472" y="178" key="#Inspections/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578712445804" />
     <state x="2610" y="266" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1578498088190">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -246,11 +278,11 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="348" key="GridCell.Tab.1.right/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578383909635" />
-    <state x="2381" y="162" key="SettingsEditor" timestamp="1578498660135">
+    <state x="2381" y="162" key="SettingsEditor" timestamp="1578712434855">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2221" y="0" key="SettingsEditor/0.0.1536.824/1920.0.1280.680@1920.0.1280.680" timestamp="1578170243706" />
-    <state x="2381" y="162" key="SettingsEditor/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578498660135" />
+    <state x="2381" y="162" key="SettingsEditor/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578712434855" />
     <state x="361" y="0" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1578180348609" />
     <state x="2472" y="252" key="Vcs.Push.Dialog.v2" timestamp="1578498586466">
       <screen x="1920" y="0" width="1920" height="1040" />
@@ -260,12 +292,12 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="968" height="528" key="XDebugger.FullValuePopup/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578280961751" />
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1578582106073">
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1578795049314">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1578582106073" />
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578499056473" />
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1578529438370" />
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578712666014" />
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1578795049314" />
     <state x="2543" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1578492220786">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>

@@ -4,8 +4,9 @@ import torchvision.transforms as transforms
 import torch.utils.data as data
 import h5py
 
+""" Incomplete code, needs amendment to be made similar to 28x28 datasets """
 
-class get_usps_dataset_16x16(data.Dataset):
+class USPSDataset16x16(data.Dataset):
     def __init__(self, spec):
         self.mode = spec['mode'] # either 'train' or 'test'
         self.root = spec['root']
@@ -56,7 +57,7 @@ def get_loaders(config):
                        'root': 'USPSdata',
                        'transforms': ComposedTransforms.usps_transf}
 
-    usps_train_dataset = get_usps_dataset_16x16(usps_train_spec)
+    usps_train_dataset = USPSDataset16x16(usps_train_spec)
     usps_train_loader = data.DataLoader(dataset=usps_train_dataset,
                                         batch_size=config.batch_size,
                                         shuffle=True,
@@ -76,7 +77,7 @@ def get_loaders(config):
     usps_test_spec = {'mode': 'test',
                       'root': 'USPSdata',
                       'transforms': ComposedTransforms.usps_transf}
-    usps_test_dataset = get_usps_dataset_16x16(usps_test_spec)
+    usps_test_dataset = USPSDataset16x16(usps_test_spec)
     usps_test_loader = data.DataLoader(dataset=usps_test_dataset,
                                        batch_size=4,
                                        shuffle=True)

@@ -5,6 +5,7 @@ import mnist_model
 import networks
 import matplotlib.pyplot as plt
 from datetime import datetime
+import pickle
 
 """
 USPS -> MNIST solver
@@ -13,21 +14,22 @@ USPS -> MNIST solver
 
 class Solver(object):
     def __init__(self, config, usps_train_loader, mnist_train_loader, usps_test_loader):
+        print("Initialising solver...", end=' ')
+        self.timestamp = datetime.now().strftime("%y%m%d-%H%M%S")
         self.usps_train_loader = usps_train_loader
         self.mnist_train_loader = mnist_train_loader
         self.usps_test_loader = usps_test_loader
         self.usps_test_iter = iter(self.usps_test_loader)
-        self.image_size = config.image_size
-        self.isTrain = config.train
-        self.lr = config.lr
-        self.beta1 = config.beta1
-        self.beta2 = config.beta2
         self.criterionGAN = networks.GANLoss(use_lsgan=True)
         self.criterionGc = nn.L1Loss()
         self.criterionIdt = nn.L1Loss()
         self.config = config
         self.gpu_ids = list(range(torch.cuda.device_count()))
+        self.model_locations = dict()
+        self.model_locations['MNIST'] = config.pretrained_mnist_model
+        self.accuracy = None
         self.build_model()
+        print("done")
 
     def build_model(self):
         """Builds a generator and a discriminator"""
@@ -40,7 +42,7 @@ class Solver(object):
         # self.G_gc_UM = networks.define_G(input_nc=1, output_nc=1, ngf=32, which_model_netG='resnet_6blocks',
         #                                  norm='batch', init_type='normal', gpu_ids=self.gpu_ids)
 
-        if self.isTrain:
+        if self.config.train:
             # two separate discriminators
             self.D_M = networks.define_D(input_nc=1, ndf=self.config.d_conv_dim, which_model_netD=self.config.which_model_netD,
                                          n_layers_D=3, norm='batch', use_sigmoid=True, init_type='normal',
@@ -50,15 +52,15 @@ class Solver(object):
             #                                 gpu_ids=self.gpu_ids)
 
         # Optimisers
-        self.G_optim = optim.Adam(self.G_UM.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
-        # self.G_optim = optim.Adam(itertools.chain(self.G_UM.parameters(), self.G_gc_UM.parameters()), lr=self.lr, betas=(self.beta1, self.beta2))
+        self.G_optim = optim.Adam(self.G_UM.parameters(), lr=self.config.lr, betas=(self.config.beta1, self.config.beta2))
+        # self.G_optim = optim.Adam(itertools.chain(self.G_UM.parameters(), self.G_gc_UM.parameters()), lr=self.config.lr, betas=(self.config.beta1, self.config.beta2))
         self.optimizers = [self.G_optim]
 
-        if self.isTrain:
+        if self.config.train:
             # a single optimiser for both discriminators (hence need a combined loss and .backward() computes
             # gradients for both networks simultaneously
-            self.D_optim = optim.Adam(self.D_M.parameters(), lr=self.lr, betas=(self.beta1, self.beta2))
-            # self.D_optim = optim.Adam(itertools.chain(self.D_M.parameters(), self.D_gc_M.parameters()), lr=self.lr, betas=(self.beta1, self.beta2))
+            self.D_optim = optim.Adam(self.D_M.parameters(), lr=self.config.lr, betas=(self.config.beta1, self.config.beta2))
+            # self.D_optim = optim.Adam(itertools.chain(self.D_M.parameters(), self.D_gc_M.parameters()), lr=self.config.lr, betas=(self.config.beta1, self.config.beta2))
             self.optimizers.append(self.D_optim)
 
         # Schedulers
@@ -81,7 +83,7 @@ class Solver(object):
 
     def rot90(self, tensor, direction): # 0 = clockwise, 1 = counterclockwise
         t = torch.transpose(tensor, 2, 3).cuda()
-        inv_idx = torch.arange(self.image_size-1, -1, -1).long().cuda()
+        inv_idx = torch.arange(self.config.image_size-1, -1, -1).long().cuda()
 
         if direction == 0:
             t = torch.index_select(t, 3, inv_idx)
@@ -91,7 +93,7 @@ class Solver(object):
         return t
 
     def train(self):
-        print('----------- Training has started. -----------')
+        print('----------- USPS->MNIST: Training model -----------')
         n_iters = self.config.niter + self.config.niter_decay
         iter_count = 0
         while True:
@@ -139,7 +141,7 @@ class Solver(object):
                 break
 
         # DONE
-        print('----------- Finished training -----------')
+        print('----------- USPS->MNIST: Finished training -----------')
 
     def backward_D(self, pred_d_fake, pred_d_gc_fake, pred_d_real, pred_d_gc_real):
         self.D_optim.zero_grad()
@@ -202,39 +204,40 @@ class Solver(object):
                     usps_inputs = next(self.usps_test_iter)[0].cuda()
                 mnist_outputs = self.G_UM(usps_inputs)
                 # left column: original images (usps inputs)
-                inputs_joined = usps_inputs.squeeze().view(-1, self.image_size)
+                inputs_joined = usps_inputs.squeeze().view(-1, self.config.image_size)
                 # right column: transformed images (mnist-ish outputs)
-                outputs_joined = mnist_outputs.squeeze().view(-1, self.image_size)
+                outputs_joined = mnist_outputs.squeeze().view(-1, self.config.image_size)
                 whole_grid = torch.cat((inputs_joined, outputs_joined), dim=1).cpu()
                 cols[i].imshow(whole_grid, cmap='gray')
             fig.show()
 
-    def test(self, fake_mnist_loader, pretrained_mnist_model=None):
+    def test(self, fake_mnist_loader):
         # run a pretrained MNIST model over transformed images from self.usps_test_dataset
-        if pretrained_mnist_model is None:
-            print("---------- Initialising DataLoaders for MNIST model ----------")
-            train_loader, test_loader = mnist_model.get_loaders(batch_size=32)
-            print("---------- Initialising model ----------")
-            pretrained_model, optimizer, lr_scheduler = mnist_model.init_model()
-            print("---------- Training model ----------")
-            pretrained_model = mnist_model.train(pretrained_model, optimizer, lr_scheduler, train_loader, num_epochs=4)
-            print("---------- Finished training ----------")
-            mnist_model.save_model(pretrained_model)
+        if self.model_locations['MNIST'] is None:
+            print("Pretrained MNIST model not given. Creating and training one now.")
+            pretrained_mnist_model, self.model_locations['MNIST'] =\
+                mnist_model.create_train_save(batch_size=32, num_epochs=4, save=True, timestamp=self.timestamp)
         else:
-            print("---------- Loading model ----------")
-            pretrained_model = mnist_model.Classifier()
-            checkpoint = torch.load(pretrained_mnist_model)
-            pretrained_model.load_state_dict(checkpoint)
-            pretrained_model = pretrained_model.cuda()
-        print("---------- Testing against GAN ----------")
-        accuracy = mnist_model.test(pretrained_model, fake_mnist_loader)
-        return accuracy
+            pretrained_mnist_model = mnist_model.load_model(self.model_locations['MNIST'])
+        print("Testing MNIST model against GAN...", end=' ')
+        self.accuracy = mnist_model.get_test_accuracy(pretrained_mnist_model, fake_mnist_loader)
+        print("done")
+        print("{:.3f}% of generated digits classified correctly".format(self.accuracy))
 
     def save_models(self):
         # later extend to saving all of G_UM, G_gc_UM, etc.
-        date_str = datetime.now().strftime("%y%m%d-%H%M%S")
-        model_name = date_str + "-USPStoMNISTmodel.pth"
-        model_path = "./models/USPStoMNIST/" + model_name
-        print("Saving model to {}".format(model_path))
+        model_path = "./models/USPStoMNIST/" + self.timestamp + "-USPStoMNISTmodel.pth"
         torch.save(self.G_UM.state_dict(), model_path)
-        return model_path
+        print("Saved model as {}".format(model_path))
+        self.model_locations['G_UM'] = model_path
+
+    def save_testrun(self):
+        # save summary of hyperparameters, model created, and its accuracy on the given MNIST model
+        summary = {'config': self.config,
+                   'G_path': self.model_locations['G_UM'],
+                   'MNIST_model': self.model_locations['MNIST'],
+                   'accuracy': self.accuracy}
+        testrun_file = "./testruns/" + self.timestamp + ".p"
+        with open(testrun_file, "wb") as f:
+            pickle.dump(summary, file=f)
+        print("Saved test run summary as {}".format(testrun_file))

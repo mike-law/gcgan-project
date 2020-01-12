@@ -15,8 +15,8 @@ class USPSDataset28x28(data.Dataset):
     """Constructs the dataset of all available labelled USPS images"""
     def __init__(self, spec):
         self.root = spec['root']
-        self.images = None
-        self.labels = None
+        self.images = []
+        self.labels = []
         self.transforms = spec['transforms']
         self.max_imgs_per_digit = spec['max_imgs_per_digit']
 
@@ -29,9 +29,8 @@ class USPSDataset28x28(data.Dataset):
             for img_file in filenames:
                 # For some reason if not converted to B&W, there are grey patches in the tensor repr of image (Why?)
                 img_tensor = self.transforms(Image.open(img_file).convert('1'))
-                self.images = img_tensor if self.images is None else torch.cat((self.images, img_tensor))
-                self.labels = torch.tensor([num]) if self.labels is None else \
-                    torch.cat((self.labels, torch.tensor([num])))
+                self.images.append(img_tensor)
+                self.labels.append(torch.tensor([num]))
                 imgs_processed += 1
                 if self.max_imgs_per_digit and imgs_processed >= self.max_imgs_per_digit:
                     break
@@ -121,9 +120,11 @@ def get_loaders(config):
 
 
 def get_fake_mnist_loader(solver):
+    print("Initialising Fake MNIST DataLoader...", end=' ')
     fake_mnist_dataset = FakeMNISTDataset(solver)
     fake_mnist_loader = data.DataLoader(dataset=fake_mnist_dataset,
                                         batch_size=32,
                                         shuffle=False,
                                         num_workers=4)
+    print("done")
     return fake_mnist_loader

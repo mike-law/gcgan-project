@@ -83,25 +83,44 @@ def train(model, optimizer, lr_scheduler, train_loader, num_epochs):
     return model
 
 
-def test(model, test_loader):
+def create_train_save(batch_size=32, num_epochs=4, save=True, timestamp="undefined_time"):
+    print("MNIST model: initialising DataLoaders...", end=' ')
+    train_loader, test_loader = get_loaders(batch_size)
+    print("done")
+    print("MNIST model: initialising model...", end=' ')
+    pretrained_model, optimizer, lr_scheduler = init_model()
+    print("done")
+    print("---------- MNIST model: Training model ----------")
+    pretrained_model = train(pretrained_model, optimizer, lr_scheduler, train_loader, num_epochs)
+    print("---------- MNIST model: Finished training ----------")
+    model_path = ""
+    if save:
+        model_path += "./models/MNISTClassifier/" + timestamp + "-MNISTClassifier.pth"
+        torch.save(pretrained_model.state_dict(), model_path)
+        print("Saved model as {}".format(model_path))
+    return pretrained_model, model_path
+
+
+def get_test_accuracy(model, test_loader):
     model.eval()
     correct = 0
-    total_loss = 0
+    # total_loss = 0
     for (img, labels) in test_loader:
         img = img.cuda()
         labels = labels.cuda()
         output = model(img)
-        total_loss += nn.CrossEntropyLoss()(output, labels)
+        # total_loss += nn.CrossEntropyLoss()(output, labels)
         pred = torch.max(output.data, dim=1)[1]
         correct += torch.sum(torch.eq(pred, labels)).item()
-    avg_loss = total_loss / len(test_loader.dataset)
+    # avg_loss = total_loss / len(test_loader.dataset)
     correct_prop = correct / len(test_loader.dataset) * 100
-    print("{:.3f}% classified correctly, Average loss: {:.5f}".format(correct_prop, avg_loss))
     return correct_prop
 
-def save_model(model):
-    date_str = datetime.now().strftime("%y%m%d-%H%M%S")
-    model_name = date_str + "-MNISTClassifier.pth"
-    model_path = "./models/MNISTClassifier/" + model_name
-    print("Saving model to {}".format(model_path))
-    torch.save(model.state_dict(), model_path)
+
+def load_model(model_file):
+    print("---------- Loading model ----------")
+    model = Classifier()
+    checkpoint = torch.load(model_file)
+    model.load_state_dict(checkpoint)
+    model = model.cuda()
+    return model

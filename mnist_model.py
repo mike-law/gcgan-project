@@ -5,7 +5,6 @@ import torch.nn.functional as F
 import torch.utils.data as data
 import usps_mnist_datasets_28x28 as um_datasets
 import math
-from datetime import datetime
 
 
 class Classifier(nn.Module):
@@ -31,7 +30,7 @@ def get_loaders(batch_size):
     train_dataset = torchvision.datasets.MNIST(root='./MNIST',
                                                train=True,
                                                download=True,
-                                               transform=um_datasets.ComposedTransforms.mnist_transf)
+                                               transform=um_datasets.std_transform)
     train_loader = data.DataLoader(dataset=train_dataset,
                                    batch_size=batch_size,
                                    shuffle=True,
@@ -40,7 +39,7 @@ def get_loaders(batch_size):
     test_dataset = torchvision.datasets.MNIST(root='./MNIST',
                                               train=False,
                                               download=True,
-                                              transform=um_datasets.ComposedTransforms.mnist_transf)
+                                              transform=um_datasets.std_transform)
     test_loader = data.DataLoader(dataset=test_dataset,
                                   batch_size=batch_size,
                                   shuffle=True,

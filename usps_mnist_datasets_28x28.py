@@ -4,6 +4,7 @@ import torchvision.transforms as transforms
 import torch.utils.data as data
 import os
 import copy
+from random import shuffle
 from PIL import Image
 
 """
@@ -24,46 +25,44 @@ class USPSDataset28x28(data.Dataset):
             folder = os.path.join(self.root, 'Numerals', str(num))
             filenames = [os.path.join(folder, img_name) for img_name in os.listdir(folder)
                          if img_name.endswith('.png')]
+            shuffle(filenames)
 
             imgs_processed = 0
             for img_file in filenames:
                 # For some reason if not converted to B&W, there are grey patches in the tensor repr of image (Why?)
                 img_tensor = self.transforms(Image.open(img_file).convert('1'))
                 self.images.append(img_tensor)
-                self.labels.append(torch.tensor([num]))
+                self.labels.append(num)
                 imgs_processed += 1
                 if self.max_imgs_per_digit and imgs_processed >= self.max_imgs_per_digit:
                     break
 
     def __len__(self):
-        return self.images.size()[0]
+        return len(self.images)
 
     def __getitem__(self, index):
         return self.images[index], self.labels[index]
 
 
-class UnsqueezeSingleChannel(object):
-    def __init__(self):
-        pass
-
-    def __call__(self, img):
-        return torch.unsqueeze(img, dim=0)
-
-
-class ComposedTransforms:
-
-    usps_transf = transforms.Compose([
-        transforms.Resize((28, 28)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,)),
-        UnsqueezeSingleChannel()  # Add extra dimension for the single channel
-    ])
-
-    mnist_transf = transforms.Compose([
+std_transform = transforms.Compose([
         transforms.Resize((28, 28)),
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,)),
     ])
+
+# class ComposedTransforms:
+#
+#     usps_transf = transforms.Compose([
+#         transforms.Resize((28, 28)),
+#         transforms.ToTensor(),
+#         transforms.Normalize((0.5,), (0.5,)),
+#     ])
+#
+#     mnist_transf = transforms.Compose([
+#         transforms.Resize((28, 28)),
+#         transforms.ToTensor(),
+#         transforms.Normalize((0.5,), (0.5,)),
+#     ])
 
 
 class FakeMNISTDataset(data.Dataset):
@@ -74,7 +73,7 @@ class FakeMNISTDataset(data.Dataset):
         self.labels = []
         with torch.no_grad():
             for (usps_img, label) in solver.usps_test_loader.dataset:
-                transformed_img = self.G(UnsqueezeSingleChannel()(usps_img))
+                transformed_img = self.G(torch.unsqueeze(usps_img, dim=0))
                 # output is a batch of size 1; remove batch dimension
                 # i.e. shape [1, 1, 28, 28] --> [1, 28, 28]
                 transformed_img = transformed_img.squeeze(dim=0)
@@ -91,7 +90,7 @@ class FakeMNISTDataset(data.Dataset):
 def get_loaders(config):
     # Get train loaders
     usps_spec = {'root': 'USPSdata',
-                 'transforms': ComposedTransforms.usps_transf,
+                 'transforms': std_transform,
                  'max_imgs_per_digit': config.max_imgs_per_digit}
     usps_all_dataset = USPSDataset28x28(usps_spec)
 
@@ -110,7 +109,7 @@ def get_loaders(config):
     mnist_train_dataset = torchvision.datasets.MNIST(root='./MNIST',
                                                      train=True,
                                                      download=True,
-                                                     transform=ComposedTransforms.mnist_transf)
+                                                     transform=std_transform)
     mnist_train_loader = data.DataLoader(dataset=mnist_train_dataset,
                                          batch_size=config.batch_size,
                                          shuffle=True,

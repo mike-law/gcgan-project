@@ -3,6 +3,7 @@ import torch
 import torch.optim as optim
 import networks
 import itertools
+import GANLosses
 
 """
 USPS -> MNIST GcGAN only solver
@@ -13,6 +14,7 @@ class Solver(AbstractSolver):
     def __init__(self, config, usps_train_loader, mnist_train_loader, usps_test_loader):
         super().__init__(config, usps_train_loader, mnist_train_loader, usps_test_loader)
         self.f, self.f_inv = self.get_geo_transform(self.config.geometry)
+        self.criterionGc = GANLosses.GCLoss()
 
     def init_models(self):
         """ Models: G_UM, D_M, D_gc_M """
@@ -69,9 +71,9 @@ class Solver(AbstractSolver):
                 # backward D and D_gc. Use a single loss function since D_optim has params of both
                 self.backward_D(pred_d_fake, pred_d_gc_fake, pred_d_real, pred_d_gc_real)
 
-                if (iter_count + 1) % 2 == 0:
+                # if (iter_count + 1) % 2 == 0:
                 # backward G (and hence G_gc at the same time) (use the same batch as above)
-                    self.backward_G(fake_mnist, f_fake_mnist, mnist, f_mnist, pred_d_fake, pred_d_gc_fake)
+                self.backward_G(fake_mnist, f_fake_mnist, mnist, f_mnist, pred_d_fake, pred_d_gc_fake)
 
                 # update learning rates
                 for sched in self.schedulers:

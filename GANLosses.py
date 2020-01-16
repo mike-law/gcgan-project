@@ -58,3 +58,12 @@ class ReconstLoss(nn.Module):
 
     def __call__(self, g_target, target):
         return self.base_loss(g_target, target)
+
+
+class CycleLoss(nn.Module):
+    def __init__(self):
+        super(CycleLoss, self).__init__()
+        self.base_loss = nn.L1Loss()
+
+    def __call__(self, real_A, real_B, fake_A, fake_B, G_AB, G_BA):
+        return self.base_loss(G_BA(fake_B), real_A) + self.base_loss(G_AB(fake_A), real_B)

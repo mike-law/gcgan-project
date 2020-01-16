@@ -1,6 +1,8 @@
 from usps_to_mnist_base_solver import AbstractSolver
+import torch
 import torch.optim as optim
 import networks
+import numpy as np
 
 """
 USPS -> MNIST plain vanilla GAN solver
@@ -10,6 +12,7 @@ USPS -> MNIST plain vanilla GAN solver
 class Solver(AbstractSolver):
     def __init__(self, config, usps_train_loader, mnist_train_loader, usps_test_loader):
         super().__init__(config, usps_train_loader, mnist_train_loader, usps_test_loader)
+        self.losses_D
 
     def init_models(self):
         """ Models: G_UM, D_M """
@@ -41,24 +44,42 @@ class Solver(AbstractSolver):
             usps_train_iter = iter(self.usps_train_loader)
             mnist_train_iter = iter(self.mnist_train_loader)
             for usps_batch, mnist_batch in zip(usps_train_iter, mnist_train_iter):
-                usps, u_labels = usps_batch
-                mnist, m_labels = mnist_batch
-                usps = usps.cuda()
-                mnist = mnist.cuda()
+                real_usps, u_labels = usps_batch
+                real_mnist, m_labels = mnist_batch
+                real_usps = real_usps.cuda()
+                real_mnist = real_mnist.cuda()
 
                 # Generate
-                fake_mnist = self.G_UM.forward(usps)
-
-                # what does D think?
+                fake_mnist = self.G_UM.forward(real_usps)
                 pred_d_fake = self.D_M(fake_mnist)
-                pred_d_real = self.D_M(mnist)
-
-                # if (iter_count + 1) % 2 == 0:
+                pred_d_real = self.D_M(real_mnist)
                 self.backward_D(pred_d_fake, pred_d_real)
+                self.backward_G(pred_d_fake, real_mnist)
 
-                if (iter_count + 1) % 2 == 0:
-                # backward G (and hence G_gc at the same time) (use the same batch as above)
-                    self.backward_G(pred_d_fake, mnist)
+                """ Trying to set up the image buffer causes CUDA memory error. Why???? """
+                # if iter_count > 0:
+                #     # For fake MNIST images, take half of fake_mnist, and half of fake_mnist_buffer
+                #     with torch.no_grad():
+                #         indices = torch.randperm(self.config.batch_size)
+                #         indices = indices[:(self.config.batch_size//2)]
+                #         fake_mnist_subset = fake_mnist[indices]
+                #         fake_mnist_buffer_subset = self.fake_mnist_buffer[indices] # use same set of indices
+                #         input_to_D = torch.cat((fake_mnist_subset, fake_mnist_buffer_subset))
+                #     pred_d_fake = self.D_M(input_to_D)
+                #     pred_d_real = self.D_M(real_mnist)
+                #     self.backward_D(pred_d_fake, pred_d_real)
+                #     self.backward_G(pred_d_fake, real_mnist)
+                #
+                #     # select half the imgs from fake_mnist to replace half the images in fake_mnist_buffer
+                #     indices = torch.randperm(self.config.batch_size)
+                #     indices = indices[:self.config.batch_size//2]
+                #     for idx in indices:
+                #         self.fake_mnist_buffer[idx] = fake_mnist[idx].clone()
+                # else:
+                #     # set up buffer. Just place all in so the buffer initialises with the right size
+                #     self.fake_mnist_buffer = fake_mnist.clone()
+                #
+                # del fake_mnist
 
                 # update learning rates
                 for sched in self.schedulers:
@@ -66,7 +87,7 @@ class Solver(AbstractSolver):
 
                 if (iter_count + 1) % 10 == 0:
                     print("{:04d} of {:04d} iterations. loss_D = {:.5f}, loss_G = {:.5f}".format(
-                        iter_count + 1, n_iters, self.loss_D, self.loss_G))
+                        iter_count + 1, n_iters, self.losses_D[-1], self.losses_G[-1]))
                     self.get_test_visuals()
 
                 iter_count += 1
@@ -88,21 +109,21 @@ class Solver(AbstractSolver):
         loss.backward(retain_graph=True)
         self.D_optim.step()
 
-        self.loss_D = loss.cpu()
+        self.losses_D = np.append(self.losses_D, loss.data.cpu())
 
     def backward_G(self, pred_d_fake, real_mnist):
         self.G_optim.zero_grad()
 
-        loss = self.criterionGAN(pred_d_fake.cpu(), True)
+        loss = self.criterionGAN(pred_d_fake.cpu(), True).cuda()
 
         # Reconstruction loss: Vanilla GAN version
         if self.config.lambda_reconst > 0:
             loss_g_idt = self.criterionReconst(self.G_UM(real_mnist), real_mnist)
             loss_g_idt *= self.config.lambda_reconst
-            loss += loss_g_idt
+            loss += loss_g_idt.cuda()
 
         loss = loss.cuda()
         loss.backward()
         self.G_optim.step()
 
-        self.loss_G = loss.data.cpu()
+        self.losses_G = np.append(self.losses_G, loss.data.cpu())

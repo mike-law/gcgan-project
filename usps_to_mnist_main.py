@@ -17,13 +17,13 @@ if __name__ == '__main__':
     parser.add_argument('--num_classes', type=int, default=10)
 
     # training hyperparameters
-    parser.add_argument('--train_prop', type=int, default=0.8)
+    parser.add_argument('--train_prop', type=int, default=0.9)
     parser.add_argument('--max_imgs_per_digit', type=int, default=600)
-    parser.add_argument('--niter', type=int, default=100)
-    parser.add_argument('--niter_decay', type=int, default=1400)
-    parser.add_argument('--batch-size', type=int, default=32)
-    parser.add_argument('--num-workers', type=int, default=4)
-    parser.add_argument('--lr', type=float, default=0.0005)
+    parser.add_argument('--niter', type=int, default=2000)
+    parser.add_argument('--niter_decay', type=int, default=1000)
+    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--num_workers', type=int, default=0)
+    parser.add_argument('--lr', type=float, default=0.0002)
     parser.add_argument('--beta1', type=float, default=0.5)
     parser.add_argument('--beta2', type=float, default=0.999)
     parser.add_argument('--lr_policy', type=str, default='lambda')
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_gan', type=float, default=1.0)
     parser.add_argument('--use_lsgan', type=str2bool, default=True)
     parser.add_argument('--lambda_cycle', type=float, default=0.0)
-    parser.add_argument('--lambda_gc', type=float, default=0.0)
+    parser.add_argument('--lambda_gc', type=float, default=0.0) # 2.0
     parser.add_argument('--lambda_reconst', type=float, default=0.0)
     # parser.add_argument('--lambda_distance_A', type=float, default=0.05)
     # parser.add_argument('--lambda_distance_B', type=float, default=0.1)
@@ -41,11 +41,9 @@ if __name__ == '__main__':
     # parser.add_argument('--unnormalized_distances', required=False, type=str2bool)
 
     # misc
-    # parser.add_argument('--train', type=str2bool, default=True)
-    # parser.add_argument('--max_items', type=int, default=400)
+    parser.add_argument('--train', type=str2bool, default=True)
     parser.add_argument('--geometry', type=int, default=1) # 0:distanceGAN, 1:rot, 2:vf
-
-    parser.add_argument('--pretrained_mnist_model', type=str, default=None)
+    parser.add_argument('--pretrained_mnist_model', type=str, default="models/MNISTClassifier/200115-172045-MNISTClassifier.pth")
 
     config = parser.parse_args()
 
@@ -69,16 +67,18 @@ if __name__ == '__main__':
         from usps_to_mnist_cycleGcGAN_solver import Solver
 
     solver = Solver(config, usps_train_loader, mnist_train_loader, usps_test_loader)
-    solver.train()
 
-    print("----------- Begin testing stage -----------")
-    fake_mnist_loader = usps_mnist_datasets_28x28.get_fake_mnist_loader(solver)
-    solver.test(fake_mnist_loader)
-    solver.save_models()
-    solver.save_testrun()
+    if config.train:
+        solver.train()
 
-    if input('view images? y/n: ').lower() == 'y':
-        while True:
-            solver.get_test_visuals()
-            if input('more images? y/n: ').lower() == 'n':
-                break
+        print("----------- Begin testing stage -----------")
+        fake_mnist_loader = usps_mnist_datasets_28x28.get_fake_mnist_loader(solver)
+        solver.test(fake_mnist_loader)
+        solver.save_models()
+        solver.save_testrun()
+
+        if input('view images? y/n: ').lower() == 'y':
+            while True:
+                solver.get_test_visuals()
+                if input('more images? y/n: ').lower() == 'n':
+                    break

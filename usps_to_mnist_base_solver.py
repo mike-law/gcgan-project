@@ -4,9 +4,11 @@ import mnist_model
 import networks
 import GANLosses
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 from datetime import datetime
 from abc import ABC, abstractmethod
 import pickle
+import numpy as np
 
 
 class AbstractSolver(ABC):
@@ -21,12 +23,14 @@ class AbstractSolver(ABC):
         self.usps_test_iter = iter(self.usps_test_loader)
         self.config = config
         self.criterionGAN = GANLosses.GANLoss(config.use_lsgan)
-        self.criterionGc = GANLosses.GCLoss() if self.config.lambda_gc > 0 else None
         self.criterionReconst = GANLosses.ReconstLoss() if self.config.lambda_reconst > 0 else None
         self.gpu_ids = list(range(torch.cuda.device_count()))
         self.model_locations = dict()
         self.model_locations['MNIST'] = config.pretrained_mnist_model
         self.accuracy = None
+        self.losses_D = np.empty(0)
+        self.losses_G = np.empty(0)
+        # self.fake_mnist_buffer = None
 
         self.init_models()
         print("done")
@@ -52,21 +56,29 @@ class AbstractSolver(ABC):
 
     def get_test_visuals(self):
         with torch.no_grad():
-            fig, cols = plt.subplots(1, 3)
-            for i in range(3):
-                try:
-                    usps_inputs = next(self.usps_test_iter)[0].cuda()
-                except StopIteration:
-                    # Reached end of batch, restart iterator
-                    self.usps_test_iter = iter(self.usps_test_loader)
-                    usps_inputs = next(self.usps_test_iter)[0].cuda()
-                mnist_outputs = self.G_UM(usps_inputs)
-                # left column: original images (usps inputs)
-                inputs_joined = usps_inputs.squeeze().view(-1, self.config.image_size)
-                # right column: transformed images (mnist-ish outputs)
-                outputs_joined = mnist_outputs.squeeze().view(-1, self.config.image_size)
-                whole_grid = torch.cat((inputs_joined, outputs_joined), dim=1).cpu()
-                cols[i].imshow(whole_grid, cmap='gray')
+            fig = plt.figure(figsize=(4, 3))
+            gs = gridspec.GridSpec(1, 2, width_ratios=[1, 4])
+            ax0 = plt.subplot(gs[0])
+            # Image previews
+            try:
+                usps_inputs = next(self.usps_test_iter)[0].cuda()
+            except StopIteration:
+                # Reached end of batch, restart iterator
+                self.usps_test_iter = iter(self.usps_test_loader)
+                usps_inputs = next(self.usps_test_iter)[0].cuda()
+            mnist_outputs = self.G_UM(usps_inputs)
+            # top row: original images (usps inputs)
+            inputs_joined = usps_inputs.squeeze().view(-1, self.config.image_size)
+            # bottom row: transformed images (mnist-ish outputs)
+            outputs_joined = mnist_outputs.squeeze().view(-1, self.config.image_size)
+            whole_grid = torch.cat((inputs_joined, outputs_joined), dim=1).cpu()
+            ax0.imshow(whole_grid, cmap='gray')
+            ax0.axis('off')
+            # Loss graphs
+            ax1 = plt.subplot(gs[1])
+            ax1.plot(self.losses_D, label="D loss")
+            ax1.plot(self.losses_G, label="G loss")
+            ax1.legend()
             fig.show()
 
     def test(self, fake_mnist_loader):

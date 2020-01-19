@@ -4,6 +4,7 @@ import torch.optim as optim
 import networks
 import GANLosses
 import itertools
+import numpy as np
 
 """
 USPS -> MNIST GcGAN only solver
@@ -52,6 +53,8 @@ class Solver(AbstractSolver):
         print('----------- USPS->MNIST: Training model -----------')
         n_iters = self.config.niter + self.config.niter_decay
         iter_count = 0
+        loss_D_sum = 0.0
+        loss_G_sum = 0.0
         while True:
             usps_train_iter = iter(self.usps_train_loader)
             mnist_train_iter = iter(self.mnist_train_loader)
@@ -72,23 +75,26 @@ class Solver(AbstractSolver):
                 pred_d_u_real = self.D_U(real_usps)
 
                 # if (iter_count + 1) % 2 == 0:
-                # backward D and D_gc. Use a single loss function since D_optim has params of both
-                self.backward_D(pred_d_m_fake, pred_d_m_real, pred_d_u_fake, pred_d_u_real)
+                loss_D_M, loss_D_U = self.backward_D(pred_d_m_fake, pred_d_m_real, pred_d_u_fake, pred_d_u_real)
+                loss_D_sum += 0.5 * (loss_D_M + loss_D_U)
 
-                """ ----------------------------------------- TO DO ---------------------------------------------"""
-
-                if (iter_count + 1) % 2 == 0:
-                # backward G (and hence G_gc at the same time) (use the same batch as above)
-                    self.backward_G(real_usps, real_mnist, fake_usps, fake_mnist, pred_d_m_fake, pred_d_u_fake)
+                # if (iter_count + 1) % 2 == 0:
+                loss_G_sum += self.backward_G(real_usps, real_mnist, fake_usps, fake_mnist, pred_d_m_fake, pred_d_u_fake)
 
                 # update learning rates
                 for sched in self.schedulers:
                     sched.step()
 
                 if (iter_count + 1) % 10 == 0:
-                    print("{:04d} of {:04d} iterations. loss_D_M = {:.5f}, loss_D_U = {:.5f}, loss_G = {:.5f}".format(
-                        iter_count + 1, n_iters, self.loss_D_M, self.loss_D_U, self.loss_G))
+                    loss_D_avg = loss_D_sum / 10
+                    loss_G_avg = loss_G_sum / 10
+                    self.avg_losses_D = np.append(self.avg_losses_D, loss_D_avg)
+                    self.avg_losses_G = np.append(self.avg_losses_G, loss_G_avg)
+                    print("{:04d} of {:04d} iterations. mean(loss_D_M, loss_D_U) = {:.5f}, loss_G = {:.5f}".format(
+                        iter_count + 1, n_iters, self.avg_losses_D[-1], self.avg_losses_G[-1]))
                     self.get_test_visuals()
+                    loss_D_sum = 0.0
+                    loss_G_sum = 0.0
 
                 iter_count += 1
                 # if all iterations done, break out of both loops
@@ -106,14 +112,14 @@ class Solver(AbstractSolver):
         loss_d_m = loss_d_m.cuda()
         loss_d_m.backward(retain_graph=True)
         self.D_M_optim.step()
-        self.loss_D_M = loss_d_m.cpu()
 
         self.D_U_optim.zero_grad()
         loss_d_u = self.criterionGAN(pred_d_u_fake.cpu(), False) + self.criterionGAN(pred_d_u_real.cpu(), True)
         loss_d_u = loss_d_u.cuda()
         loss_d_u.backward(retain_graph=True)
         self.D_U_optim.step()
-        self.loss_D_U = loss_d_u.cpu()
+
+        return loss_d_m.data.cpu(), loss_d_u.data.cpu()
 
     def backward_G(self, real_usps, real_mnist, fake_usps, fake_mnist, pred_d_m_fake, pred_d_u_fake):
         self.G_optim.zero_grad()
@@ -143,4 +149,4 @@ class Solver(AbstractSolver):
         loss.backward()
         self.G_optim.step()
 
-        self.loss_G = loss.data.cpu()
+        return loss.data.cpu()

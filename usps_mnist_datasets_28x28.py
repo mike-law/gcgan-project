@@ -103,7 +103,7 @@ def get_loaders(config):
                                         shuffle=True,
                                         num_workers=config.num_workers)
     usps_test_loader = data.DataLoader(dataset=usps_test_dataset,
-                                       batch_size=8,
+                                       batch_size=16,
                                        shuffle=True,
                                        num_workers=config.num_workers)
     mnist_train_dataset = torchvision.datasets.MNIST(root='./MNIST',

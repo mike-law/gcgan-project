@@ -100,22 +100,6 @@ def create_train_save(batch_size=32, num_epochs=4, save=True, timestamp="undefin
     return pretrained_model, model_path
 
 
-def get_test_accuracy(model, test_loader):
-    model.eval()
-    correct = 0
-    # total_loss = 0
-    for (img, labels) in test_loader:
-        img = img.cuda()
-        labels = labels.cuda()
-        output = model(img)
-        # total_loss += nn.CrossEntropyLoss()(output, labels)
-        pred = torch.max(output.data, dim=1)[1]
-        correct += torch.sum(torch.eq(pred, labels)).item()
-    # avg_loss = total_loss / len(test_loader.dataset)
-    correct_prop = correct / len(test_loader.dataset) * 100
-    return correct_prop
-
-
 def load_model(model_file):
     print("---------- Loading model ----------")
     model = Classifier()

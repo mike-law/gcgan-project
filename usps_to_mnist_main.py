@@ -4,7 +4,6 @@ import usps_mnist_datasets_16x16, usps_mnist_datasets_28x28
 def str2bool(v):
     return v.lower() in 'true'
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
@@ -18,9 +17,9 @@ if __name__ == '__main__':
 
     # training hyperparameters
     parser.add_argument('--train_prop', type=int, default=0.9)
-    parser.add_argument('--max_imgs_per_digit', type=int, default=600)
-    parser.add_argument('--niter', type=int, default=2000)
-    parser.add_argument('--niter_decay', type=int, default=1000)
+    parser.add_argument('--max_imgs_per_digit', type=int, default=100) # 600
+    parser.add_argument('--niter', type=int, default=1500) # 2000
+    parser.add_argument('--niter_decay', type=int, default=1000) # 1000
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--num_workers', type=int, default=0)
     parser.add_argument('--lr', type=float, default=0.0002)
@@ -29,11 +28,12 @@ if __name__ == '__main__':
     parser.add_argument('--lr_policy', type=str, default='lambda')
 
     # loss function/full objective config
-    parser.add_argument('--lambda_gan', type=float, default=1.0)
+    parser.add_argument('--lambda_gan', type=float, default=1.0) # 2.0
     parser.add_argument('--use_lsgan', type=str2bool, default=True)
     parser.add_argument('--lambda_cycle', type=float, default=0.0)
-    parser.add_argument('--lambda_gc', type=float, default=0.0) # 2.0
+    parser.add_argument('--lambda_gc', type=float, default=0.0) # 1.5
     parser.add_argument('--lambda_reconst', type=float, default=0.0)
+    parser.add_argument('--lambda_dist', type=float, default=0.0)
     # parser.add_argument('--lambda_distance_A', type=float, default=0.05)
     # parser.add_argument('--lambda_distance_B', type=float, default=0.1)
     # parser.add_argument('--use_self_distance', required=False, type=str2bool)
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     # parser.add_argument('--unnormalized_distances', required=False, type=str2bool)
 
     # misc
-    parser.add_argument('--train', type=str2bool, default=True)
+    parser.add_argument('--begin_train', type=str2bool, default=True)
     parser.add_argument('--geometry', type=int, default=1) # 0:distanceGAN, 1:rot, 2:vf
     parser.add_argument('--pretrained_mnist_model', type=str, default="models/MNISTClassifier/200115-172045-MNISTClassifier.pth")
 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     solver = Solver(config, usps_train_loader, mnist_train_loader, usps_test_loader)
 
-    if config.train:
+    if config.begin_train:
         solver.train()
 
         print("----------- Begin testing stage -----------")

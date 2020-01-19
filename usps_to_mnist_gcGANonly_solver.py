@@ -48,8 +48,11 @@ class Solver(AbstractSolver):
         print('----------- USPS->MNIST: Training model -----------')
         n_iters = self.config.niter + self.config.niter_decay
         iter_count = 0
+        # Stats
         loss_D_sum = 0
         loss_G_sum = 0
+        correctly_labelled = 0
+        imgs_processed = 0
         while True:
             usps_train_iter = iter(self.usps_train_loader)
             mnist_train_iter = iter(self.mnist_train_loader)
@@ -63,20 +66,18 @@ class Solver(AbstractSolver):
                 f_mnist = self.f(real_mnist)
                 fake_mnist = self.G_UM.forward(real_usps)
                 f_fake_mnist = self.G_UM.forward(self.f(real_usps))
-
-                # what do D and D_gc think?
                 pred_d_fake = self.D_M(fake_mnist)
                 pred_d_real = self.D_M(real_mnist)
                 pred_d_gc_fake = self.D_gc_M(f_fake_mnist)
                 pred_d_gc_real = self.D_gc_M(f_mnist)
 
-                # if (iter_count + 1) % 2 == 0:
-                # backward D and D_gc. Use a single loss function since D_optim has params of both
+                # Calculate losses and backpropagate
                 loss_D_sum += self.backward_D(pred_d_fake, pred_d_gc_fake, pred_d_real, pred_d_gc_real)
-
-                # if (iter_count + 1) % 2 == 0:
-                # backward G (and hence G_gc at the same time) (use the same batch as above)
                 loss_G_sum += self.backward_G(real_usps, fake_mnist, f_fake_mnist, real_mnist, f_mnist, pred_d_fake, pred_d_gc_fake)
+
+                # Accuracy on training set
+                correctly_labelled += self.get_train_accuracy(fake_mnist, u_labels)
+                imgs_processed += len(u_labels)
 
                 # update learning rates
                 for sched in self.schedulers:
@@ -85,13 +86,18 @@ class Solver(AbstractSolver):
                 if (iter_count + 1) % 10 == 0:
                     loss_D_avg = loss_D_sum / 10
                     loss_G_avg = loss_G_sum / 10
+                    avg_training_accuracy = correctly_labelled / imgs_processed * 100
                     self.avg_losses_D = np.append(self.avg_losses_D, loss_D_avg)
                     self.avg_losses_G = np.append(self.avg_losses_G, loss_G_avg)
-                    print("{:04d} of {:04d} iterations. loss_D = {:.5f}, loss_G = {:.5f}".format(
-                        iter_count + 1, n_iters, self.avg_losses_D[-1], self.avg_losses_G[-1]))
+                    self.train_accuracy_record = np.append(self.train_accuracy_record, avg_training_accuracy)
+                    print("{:04d} / {:04d} iters. avg loss_D = {:.5f}, avg loss_G = {:.5f}, avg train accuracy = {:.2f}%".format(
+                        iter_count + 1, n_iters, self.avg_losses_D[-1], self.avg_losses_G[-1],
+                        self.train_accuracy_record[-1]))
                     self.get_test_visuals()
                     loss_D_sum = 0
                     loss_G_sum = 0
+                    correctly_labelled = 0
+                    imgs_processed = 0
 
                 iter_count += 1
                 # if all iterations done, break out of both loops

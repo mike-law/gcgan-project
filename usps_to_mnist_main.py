@@ -17,11 +17,11 @@ if __name__ == '__main__':
 
     # training hyperparameters
     parser.add_argument('--train_prop', type=int, default=0.9)
-    parser.add_argument('--max_imgs_per_digit', type=int, default=100) # 600
-    parser.add_argument('--niter', type=int, default=1500) # 2000
-    parser.add_argument('--niter_decay', type=int, default=1000) # 1000
+    parser.add_argument('--max_imgs_per_digit', type=int, default=500)
+    parser.add_argument('--niter', type=int, default=2000) # 1500
+    parser.add_argument('--niter_decay', type=int, default=2000) # 1500
     parser.add_argument('--batch_size', type=int, default=32)
-    parser.add_argument('--num_workers', type=int, default=0)
+    parser.add_argument('--num_workers', type=int, default=4)
     parser.add_argument('--lr', type=float, default=0.0002)
     parser.add_argument('--beta1', type=float, default=0.5)
     parser.add_argument('--beta2', type=float, default=0.999)
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_gan', type=float, default=1.0) # 2.0
     parser.add_argument('--use_lsgan', type=str2bool, default=True)
     parser.add_argument('--lambda_cycle', type=float, default=0.0)
-    parser.add_argument('--lambda_gc', type=float, default=0.0) # 1.5
+    parser.add_argument('--lambda_gc', type=float, default=1.0) # 1.5
     parser.add_argument('--lambda_reconst', type=float, default=0.0)
     parser.add_argument('--lambda_dist', type=float, default=0.0)
     # parser.add_argument('--lambda_distance_A', type=float, default=0.05)

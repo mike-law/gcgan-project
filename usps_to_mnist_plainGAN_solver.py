@@ -11,8 +11,8 @@ USPS -> MNIST plain vanilla GAN solver
 
 
 class Solver(AbstractSolver):
-    def __init__(self, config, usps_train_loader, mnist_train_loader, usps_test_loader):
-        super().__init__(config, usps_train_loader, mnist_train_loader, usps_test_loader)
+    def __init__(self, config, usps_train_loader, mnist_train_loader):
+        super().__init__(config, usps_train_loader, mnist_train_loader)
 
     def init_models(self):
         """ Models: G_UM, D_M """
@@ -43,8 +43,11 @@ class Solver(AbstractSolver):
         # Stats
         loss_D_sum = 0
         loss_G_sum = 0
+        d_correct_real = 0  # % of real MNIST the discriminator correctly identifies as real
+        d_correct_fake = 0  # % of fake MNIST the discriminator correctly identifies as fake
         correctly_labelled = 0
-        imgs_processed = 0
+        usps_processed = 0
+        mnist_processed = 0
         while True:
             usps_train_iter = iter(self.usps_train_loader)
             mnist_train_iter = iter(self.mnist_train_loader)
@@ -53,19 +56,27 @@ class Solver(AbstractSolver):
                 real_mnist, m_labels = mnist_batch
                 real_usps = real_usps.cuda()
                 real_mnist = real_mnist.cuda()
+                usps_processed += len(u_labels)
+                mnist_processed += len(m_labels)
 
                 # Generate
                 fake_mnist = self.G_UM.forward(real_usps)
                 pred_d_fake = self.D_M(fake_mnist)
                 pred_d_real = self.D_M(real_mnist)
 
+                # Classification accuracy on fake MNIST images
+                correctly_labelled += self.get_train_accuracy(fake_mnist, u_labels)
+
+                # Discriminator accuracy on fake & real MNIST
+                with torch.no_grad():
+                    fake_mnist_guesses = pred_d_fake.squeeze().cpu().numpy().round()
+                    d_correct_fake += np.sum(fake_mnist_guesses == self.target_fake_label)
+                    real_mnist_guesses = pred_d_real.squeeze().cpu().numpy().round()
+                    d_correct_real += np.sum(real_mnist_guesses == self.target_real_label)
+
                 # Calculate losses and backpropagate
                 loss_D_sum += self.backward_D(pred_d_fake, pred_d_real)
                 loss_G_sum += self.backward_G(real_usps, pred_d_fake, real_mnist, fake_mnist)
-
-                # Accuracy on training set
-                correctly_labelled += self.get_train_accuracy(fake_mnist, u_labels)
-                imgs_processed += len(u_labels)
 
                 """ Trying to set up the image buffer causes CUDA memory error. Why???? """
                 # if iter_count > 0:
@@ -99,18 +110,24 @@ class Solver(AbstractSolver):
                     # Display statistics averaged across the last 10 iterations
                     loss_D_avg = loss_D_sum / 10
                     loss_G_avg = loss_G_sum / 10
-                    avg_training_accuracy = correctly_labelled / imgs_processed * 100
+                    d_acc_real_mnist = d_correct_real / mnist_processed * 100
+                    d_acc_fake_mnist = d_correct_fake / usps_processed * 100
+                    fake_mnist_class_acc = correctly_labelled / usps_processed * 100
                     self.avg_losses_D = np.append(self.avg_losses_D, loss_D_avg)
                     self.avg_losses_G = np.append(self.avg_losses_G, loss_G_avg)
-                    self.train_accuracy_record = np.append(self.train_accuracy_record, avg_training_accuracy)
-                    print("{:04d} / {:04d} iters. avg loss_D = {:.5f}, avg loss_G = {:.5f}, avg train accuracy = {:.2f}%".format(
-                        iter_count + 1, n_iters, self.avg_losses_D[-1], self.avg_losses_G[-1],
-                        self.train_accuracy_record[-1]))
-                    self.get_test_visuals()
-                    loss_D_sum = 0
-                    loss_G_sum = 0
-                    correctly_labelled = 0
-                    imgs_processed = 0
+                    self.classifier_accuracies = np.append(self.classifier_accuracies, fake_mnist_class_acc)
+                    self.D_accuracies_fake = np.append(self.D_accuracies_fake, d_acc_fake_mnist)
+                    self.D_accuracies_real = np.append(self.D_accuracies_real, d_acc_real_mnist)
+                    print("{:04d} / {:04d} iters. avg loss_D = {:.5f}, avg loss_G = {:.5f},".format(
+                        iter_count + 1, n_iters, self.avg_losses_D[-1], self.avg_losses_G[-1], end=' '))
+                    print("avg fake MNIST classification accuracy = {:.2f}%".format(
+                        self.classifier_accuracies[-1]), end=' ')
+                    print("avg D acc on real MNIST = {:.2f}%, avg D acc on fake MNIST = {:.2f}%".format(
+                        self.D_accuracies_real[-1], self.D_accuracies_fake[-1]))
+                    self.get_test_visuals(real_usps, fake_mnist)
+                    loss_D_sum, loss_G_sum = 0, 0
+                    d_correct_real, d_correct_fake = 0, 0
+                    correctly_labelled, usps_processed, mnist_processed = 0, 0, 0
 
                 iter_count += 1
                 # if all iterations done, break out of both loops

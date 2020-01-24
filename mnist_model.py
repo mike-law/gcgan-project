@@ -82,7 +82,7 @@ def train(model, optimizer, lr_scheduler, train_loader, num_epochs):
     return model
 
 
-def create_train_save(batch_size=32, num_epochs=4, save=True, timestamp="undefined_time"):
+def create_and_train(batch_size=32, num_epochs=4):  #, save=True, timestamp="undefined_time"):
     print("MNIST model: initialising DataLoaders...", end=' ')
     train_loader, test_loader = get_loaders(batch_size)
     print("done")
@@ -92,12 +92,12 @@ def create_train_save(batch_size=32, num_epochs=4, save=True, timestamp="undefin
     print("---------- MNIST model: Training model ----------")
     pretrained_model = train(pretrained_model, optimizer, lr_scheduler, train_loader, num_epochs)
     print("---------- MNIST model: Finished training ----------")
-    model_path = ""
-    if save:
-        model_path += "./models/MNISTClassifier/" + timestamp + "-MNISTClassifier.pth"
-        torch.save(pretrained_model.state_dict(), model_path)
-        print("Saved model as {}".format(model_path))
-    return pretrained_model, model_path
+    # model_path = ""
+    # if save:
+    #     model_path += "./models/MNISTClassifier/" + timestamp + "-MNISTClassifier.pth"
+    #     torch.save(pretrained_model.state_dict(), model_path)
+    #     print("Saved model as {}".format(model_path))
+    return pretrained_model  #, model_path
 
 
 def load_model(model_file):

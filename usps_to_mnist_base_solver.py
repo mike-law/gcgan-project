@@ -1,10 +1,7 @@
 import torch
-import torch.nn as nn
 import mnist_model
-import networks
 import GANLosses
 import matplotlib.pyplot as plt
-from matplotlib import gridspec
 from datetime import datetime
 from abc import ABC, abstractmethod
 import pickle
@@ -13,16 +10,16 @@ import numpy as np
 
 class AbstractSolver(ABC):
 
-    def __init__(self, config, usps_train_loader, mnist_train_loader, usps_test_loader):
+    def __init__(self, config, usps_train_loader, mnist_train_loader):
         # May need to refactor some of these so that they make sense in the class hierarchy.
         print("Initialising solver...", end=' ')
         self.timestamp = datetime.now().strftime("%y%m%d-%H%M%S")
         self.usps_train_loader = usps_train_loader
         self.mnist_train_loader = mnist_train_loader
-        self.usps_test_loader = usps_test_loader
-        self.usps_test_iter = iter(self.usps_test_loader)
         self.config = config
-        self.criterionGAN = GANLosses.GANLoss(config.use_lsgan)
+        self.target_real_label = 1.0
+        self.target_fake_label = 0.0
+        self.criterionGAN = GANLosses.GANLoss(config.use_lsgan, self.target_real_label, self.target_fake_label)
         self.criterionReconst = GANLosses.ReconstLoss() if self.config.lambda_reconst > 0 else None
         # self.criterionDist = GANLosses.DistanceLoss() if self.config.lambda_dist > 0 else None
         # if self.criterionDist:
@@ -32,18 +29,16 @@ class AbstractSolver(ABC):
         self.accuracy = None
         self.avg_losses_D = np.empty(0)
         self.avg_losses_G = np.empty(0)
-        self.train_accuracy_record = np.empty(0)
-        self.model_locations = dict()
-        self.model_locations['MNIST'] = config.pretrained_mnist_model
-        # self.fake_mnist_buffer = None
+        self.classifier_accuracies = np.empty(0)
+        self.D_accuracies_fake = np.empty(0)
+        self.D_accuracies_real = np.empty(0)
+        self.latest_plot = None
         # Set up MNIST classifier model
-        if self.model_locations['MNIST'] is None:
-            print("Pretrained MNIST model not given. Creating and training one now.")
-            self.pretrained_mnist_model, self.model_locations['MNIST'] =\
-                mnist_model.create_train_save(batch_size=32, num_epochs=4, save=True, timestamp=self.timestamp)
+        if self.config.pretrained_mnist_model:
+            self.pretrained_mnist_model = mnist_model.load_model(self.config.pretrained_mnist_model)
         else:
-            self.pretrained_mnist_model = mnist_model.load_model(self.model_locations['MNIST'])
-
+            print("Pretrained MNIST model not given. Creating and training one now.")
+            self.pretrained_mnist_model = mnist_model.create_and_train(batch_size=32, num_epochs=4)  #, save=True, timestamp=self.timestamp)
         self.init_models()
         print("done")
 
@@ -95,26 +90,18 @@ class AbstractSolver(ABC):
         correct = torch.sum(torch.eq(pred, labels)).item()
         return correct
 
-    def get_test_visuals(self):
+    def get_test_visuals(self, real_usps, fake_mnist, num_to_show=16):
         with torch.no_grad():
             fig = plt.figure(figsize=(4, 6))
-            gs = fig.add_gridspec(2, 2, width_ratios=[1, 4], height_ratios=[3, 2])
+            gs = fig.add_gridspec(3, 2, width_ratios=[1, 4], height_ratios=[2, 2, 1])
             ax0 = fig.add_subplot(gs[:, 0])
             ax1 = fig.add_subplot(gs[0, 1])
             ax2 = fig.add_subplot(gs[1, 1])
+            ax3 = fig.add_subplot(gs[2, 1])
 
             # Image previews
-            try:
-                usps_inputs = next(self.usps_test_iter)[0].cuda()
-            except StopIteration:
-                # Reached end of batch, restart iterator
-                self.usps_test_iter = iter(self.usps_test_loader)
-                usps_inputs = next(self.usps_test_iter)[0].cuda()
-            mnist_outputs = self.G_UM(usps_inputs)
-            # top row: original images (usps inputs)
-            inputs_joined = usps_inputs.squeeze().view(-1, self.config.image_size)
-            # bottom row: transformed images (mnist-ish outputs)
-            outputs_joined = mnist_outputs.squeeze().view(-1, self.config.image_size)
+            inputs_joined = real_usps[:num_to_show].squeeze().view(-1, self.config.image_size)
+            outputs_joined = fake_mnist[:num_to_show].squeeze().view(-1, self.config.image_size)
             whole_grid = torch.cat((inputs_joined, outputs_joined), dim=1).cpu()
             ax0.imshow(whole_grid, cmap='gray')
             ax0.axis('off')
@@ -126,11 +113,19 @@ class AbstractSolver(ABC):
             ax1.legend()
             ax1.grid(True)
 
-            # Training accuracy
-            ax2.plot(xticks, self.train_accuracy_record, label="training acc.")
+            # Discriminator accuracies on real and fake MNIST
+            ax2.plot(xticks, self.D_accuracies_real, label="Real MNIST acc")
+            ax2.plot(xticks, self.D_accuracies_fake, label="Fake MNIST acc")
             ax2.legend()
             ax2.grid(True)
+
+            # Training accuracy
+            ax3.plot(xticks, self.classifier_accuracies, label="% classification acc")
+            ax3.legend()
+            ax3.grid(True)
+
             fig.show()
+            self.latest_plot = fig
 
     def test(self, fake_mnist_loader):
         # run pretrained MNIST model over transformed images from self.usps_test_dataset
@@ -147,20 +142,56 @@ class AbstractSolver(ABC):
         print("done")
         print("{:.3f}% of generated digits classified correctly".format(self.accuracy))
 
-    def save_models(self):
-        # later extend to saving all of G_UM, G_gc_UM, etc.
-        model_path = "./models/USPStoMNIST/" + self.timestamp + "-USPStoMNISTmodel.pth"
+    def save_testrun(self, path):
+        # save G_UM
+        model_path = path + "/USPStoMNISTmodel.pth"
         torch.save(self.G_UM.state_dict(), model_path)
         print("Saved model as {}".format(model_path))
-        self.model_locations['G_UM'] = model_path
 
-    def save_testrun(self):
-        # save summary of hyperparameters, model created, and its accuracy on the given MNIST model
-        summary = {'config': self.config,
-                   'G_path': self.model_locations['G_UM'],
-                   'MNIST_model': self.model_locations['MNIST'],
-                   'accuracy': self.accuracy}
-        testrun_file = "./testruns/" + self.timestamp + ".p"
-        with open(testrun_file, "wb") as f:
-            pickle.dump(summary, file=f)
-        print("Saved test run summary as {}".format(testrun_file))
+        # save config
+        config_path = path + "/config.p"
+        with open(config_path, "wb") as f:
+            pickle.dump(self.config, file=f)
+
+        # save text summary
+        with open(path + "/summary.txt", "w+") as f:
+            f.write(f"lambda_gan = {self.config.lambda_gan}\n")
+            f.write(f"lambda_cycle = {self.config.lambda_cycle}\n")
+            f.write(f"lambda_gc = {self.config.lambda_gc}\n")
+            f.write(f"lambda_reconst = {self.config.lambda_reconst}\n")
+            f.write(f"lambda_dist = {self.config.lambda_dist}\n")
+            f.write(f"classification accuracy = {self.classifier_accuracies[-1]}%\n\n")
+            f.write("HYPERPARAMETERS\n")
+            f.write(f"niter = {self.config.niter}\n")
+            f.write(f"niter_decay = {self.config.niter_decay}\n")
+            f.write(f"lr = {self.config.lr}\n")
+            f.write(f"batch_size = {self.config.batch_size}\n\n")
+            f.write("MODELS\n")
+            f.write(f"g_conv_dim = {self.config.g_conv_dim}\n")
+            f.write(f"d_conv_dim = {self.config.d_conv_dim}\n")
+
+        # save diagnostic plots
+        plot_path = path + "/plots.png"
+        self.latest_plot.savefig(plot_path)
+
+        # save sample image translations
+        usps_iter = iter(self.usps_train_loader)
+        with torch.no_grad():
+            fig = plt.figure(figsize=(6, 6))
+            gs = fig.add_gridspec(1, 3)
+            ax0 = fig.add_subplot(gs[0, 0])
+            ax1 = fig.add_subplot(gs[0, 1])
+            ax2 = fig.add_subplot(gs[0, 2])
+
+            for ax in [ax0, ax1, ax2]:
+                real_usps, _ = next(usps_iter)
+                real_usps = real_usps.cuda()
+                fake_mnist = self.G_UM(real_usps)
+                inputs_joined = real_usps[:6].squeeze().view(-1, self.config.image_size)
+                outputs_joined = fake_mnist[:6].squeeze().view(-1, self.config.image_size)
+                whole_grid = torch.cat((inputs_joined, outputs_joined), dim=1).cpu()
+                ax.imshow(whole_grid, cmap='gray')
+                ax.axis('off')
+
+            sample_imgs_path = path + "/sample_translations.png"
+            fig.savefig(sample_imgs_path)

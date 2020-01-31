@@ -18,9 +18,13 @@ class Solver(AbstractSolver):
         self.criterionGc = GANLosses.GCLoss()
 
     def init_models(self):
-        """ Models: G_UM, D_M, D_gc_M """
+        """ Models: G_UM (G_gc_UM if separate_G is True), D_M, D_gc_M """
         # Networks
         self.G_UM = networks.define_G(input_nc=1, output_nc=1, ngf=self.config.g_conv_dim,
+                                      which_model_netG=self.config.which_model_netG, norm='batch', init_type='normal',
+                                      gpu_ids=self.gpu_ids)
+        if self.config.separate_G:
+            self.G_gc_UM = networks.define_G(input_nc=1, output_nc=1, ngf=self.config.g_conv_dim,
                                       which_model_netG=self.config.which_model_netG, norm='batch', init_type='normal',
                                       gpu_ids=self.gpu_ids)
         self.D_M = networks.define_D(input_nc=1, ndf=self.config.d_conv_dim,
@@ -33,8 +37,12 @@ class Solver(AbstractSolver):
                                        gpu_ids=self.gpu_ids)
 
         # Optimisers
-        self.G_optim = optim.Adam(self.G_UM.parameters(), lr=self.config.lr,
-                                  betas=(self.config.beta1, self.config.beta2))
+        if self.config.separate_G:
+            self.G_optim = optim.Adam(itertools.chain(self.G_UM.parameters(), self.G_gc_UM.parameters()),
+                                      lr=self.config.lr, betas=(self.config.beta1, self.config.beta2))
+        else:
+            self.G_optim = optim.Adam(self.G_UM.parameters(), lr=self.config.lr,
+                                      betas=(self.config.beta1, self.config.beta2))
         self.D_optim = optim.Adam(itertools.chain(self.D_M.parameters(), self.D_gc_M.parameters()),
                                   lr=self.config.lr, betas=(self.config.beta1, self.config.beta2))
         self.optimizers = [self.G_optim, self.D_optim]
@@ -70,7 +78,10 @@ class Solver(AbstractSolver):
                 # Generate
                 f_mnist = self.f(real_mnist)
                 fake_mnist = self.G_UM.forward(real_usps)
-                f_fake_mnist = self.G_UM.forward(self.f(real_usps))
+                if self.config.separate_G:
+                    f_fake_mnist = self.G_gc_UM.forward(self.f(real_usps))
+                else:
+                    f_fake_mnist = self.G_UM.forward(self.f(real_usps))
                 pred_d_fake = self.D_M(fake_mnist)
                 pred_d_real = self.D_M(real_mnist)
                 pred_d_gc_fake = self.D_gc_M(f_fake_mnist)
@@ -98,21 +109,11 @@ class Solver(AbstractSolver):
                 if (iter_count + 1) % 10 == 0:
                     loss_D_avg = loss_D_sum / 10
                     loss_G_avg = loss_G_sum / 10
+                    fake_mnist_class_acc = correctly_labelled / usps_processed * 100
                     d_acc_real_mnist = d_correct_real / mnist_processed * 100
                     d_acc_fake_mnist = d_correct_fake / usps_processed * 100
-                    fake_mnist_class_acc = correctly_labelled / usps_processed * 100
-                    self.avg_losses_D = np.append(self.avg_losses_D, loss_D_avg)
-                    self.avg_losses_G = np.append(self.avg_losses_G, loss_G_avg)
-                    self.classifier_accuracies = np.append(self.classifier_accuracies, fake_mnist_class_acc)
-                    self.D_accuracies_fake = np.append(self.D_accuracies_fake, d_acc_fake_mnist)
-                    self.D_accuracies_real = np.append(self.D_accuracies_real, d_acc_real_mnist)
-                    print("{:04d} / {:04d} iters. avg loss_D = {:.5f}, avg loss_G = {:.5f},".format(
-                        iter_count + 1, n_iters, self.avg_losses_D[-1], self.avg_losses_G[-1], end=' '))
-                    print("avg fake MNIST classification accuracy = {:.2f}%".format(
-                        self.classifier_accuracies[-1]), end=' ')
-                    print("avg D acc on real MNIST = {:.2f}%, avg D acc on fake MNIST = {:.2f}%".format(
-                        self.D_accuracies_real[-1], self.D_accuracies_fake[-1]))
-                    self.get_test_visuals(real_usps, fake_mnist)
+                    self.report_results(iter_count, n_iters, loss_D_avg, loss_G_avg, fake_mnist_class_acc,
+                                        d_acc_real_mnist, d_acc_fake_mnist, self.f(real_usps), f_fake_mnist)
                     loss_D_sum, loss_G_sum = 0, 0
                     d_correct_real, d_correct_fake = 0, 0
                     correctly_labelled, usps_processed, mnist_processed = 0, 0, 0
@@ -157,10 +158,13 @@ class Solver(AbstractSolver):
 
         # Reconstruction loss: GcGAN version
         if self.config.lambda_reconst > 0:
-            loss_g_idt = 0.5 * self.criterionReconst(self.G_UM(real_mnist), real_mnist)
-            loss_g_idt += 0.5 * self.criterionReconst(self.G_UM(f_real_mnist), f_real_mnist)
-            loss_g_idt *= self.config.lambda_reconst
-            loss += loss_g_idt.cuda()
+            loss_g_reconst = 0.5 * self.criterionReconst(self.G_UM(real_mnist), real_mnist)
+            if self.config.separate_G:
+                loss_g_reconst += 0.5 * self.criterionReconst(self.G_gc_UM(f_real_mnist), f_real_mnist)
+            else:
+                loss_g_reconst += 0.5 * self.criterionReconst(self.G_UM(f_real_mnist), f_real_mnist)
+            loss_g_reconst *= self.config.lambda_reconst
+            loss += loss_g_reconst.cuda()
 
         # if self.config.lambda_dist > 0:
         #     ####
@@ -174,13 +178,17 @@ class Solver(AbstractSolver):
     def rot90(self, tensor, direction): # 0 = clockwise, 1 = counterclockwise
         t = torch.transpose(tensor, 2, 3).cuda()
         inv_idx = torch.arange(self.config.image_size-1, -1, -1).long().cuda()
-
         if direction == 0:
             t = torch.index_select(t, 3, inv_idx)
         elif direction == 1:
             t = torch.index_select(t, 2, inv_idx)
-
         return t
+
+    def rot180(self, tensor):
+        inv_idx = torch.arange(self.config.image_size-1, -1, -1).long().cuda()
+        tensor = torch.index_select(tensor, 2, inv_idx)
+        tensor = torch.index_select(tensor, 3, inv_idx)
+        return tensor
 
     def vf(self, tensor):
         inv_idx = torch.arange(self.config.image_size-1, -1, -1).long().cuda()
@@ -188,9 +196,22 @@ class Solver(AbstractSolver):
 
     def get_geo_transform(self, transform_id):
         """ Returns f and f^-1 """
+        if transform_id == 0:
+            idt = lambda img: img
+            return idt, idt
         if transform_id == 1:
             clockwise = lambda img: self.rot90(img, 0)
             anticlockwise = lambda img: self.rot90(img, 1)
             return clockwise, anticlockwise
         elif transform_id == 2:
+            return self.rot180, self.rot180
+        elif transform_id == 3:
             return self.vf, self.vf
+        elif transform_id == 4:
+            def noiser(img_batch):
+                noise = torch.randn_like(img_batch)
+                noise = noise * np.sqrt(self.config.noise_var)
+                noise = noise.cuda()
+                return img_batch + noise
+            idt = lambda img: img
+            return noiser, idt  # possible to make it so that f^-1 removes the noise added from noiser?

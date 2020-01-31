@@ -101,7 +101,6 @@ def create_and_train(batch_size=32, num_epochs=4):  #, save=True, timestamp="und
 
 
 def load_model(model_file):
-    print("---------- Loading model ----------")
     model = Classifier()
     checkpoint = torch.load(model_file)
     model.load_state_dict(checkpoint)

@@ -102,21 +102,11 @@ class Solver(AbstractSolver):
                 if (iter_count + 1) % 10 == 0:
                     loss_D_avg = loss_D_sum / 10
                     loss_G_avg = loss_G_sum / 10
+                    fake_mnist_class_acc = correctly_labelled / usps_processed * 100
                     d_acc_real_mnist = d_correct_real / mnist_processed * 100
                     d_acc_fake_mnist = d_correct_fake / usps_processed * 100
-                    fake_mnist_class_acc = correctly_labelled / usps_processed * 100
-                    self.avg_losses_D = np.append(self.avg_losses_D, loss_D_avg)
-                    self.avg_losses_G = np.append(self.avg_losses_G, loss_G_avg)
-                    self.classifier_accuracies = np.append(self.classifier_accuracies, fake_mnist_class_acc)
-                    self.D_accuracies_fake = np.append(self.D_accuracies_fake, d_acc_fake_mnist)
-                    self.D_accuracies_real = np.append(self.D_accuracies_real, d_acc_real_mnist)
-                    print("{:04d} / {:04d} iters. avg loss_D = {:.5f}, avg loss_G = {:.5f},".format(
-                        iter_count + 1, n_iters, self.avg_losses_D[-1], self.avg_losses_G[-1], end=' '))
-                    print("avg fake MNIST classification accuracy = {:.2f}%".format(
-                        self.classifier_accuracies[-1]), end=' ')
-                    print("avg D acc on real MNIST = {:.2f}%, avg D acc on fake MNIST = {:.2f}%".format(
-                        self.D_accuracies_real[-1], self.D_accuracies_fake[-1]))
-                    self.get_test_visuals(real_usps, fake_mnist)
+                    self.report_results(iter_count, n_iters, loss_D_avg, loss_G_avg, fake_mnist_class_acc,
+                                        d_acc_real_mnist, d_acc_fake_mnist, real_usps, fake_mnist)
                     loss_D_sum, loss_G_sum = 0, 0
                     d_correct_real, d_correct_fake = 0, 0
                     correctly_labelled, usps_processed, mnist_processed = 0, 0, 0
@@ -156,16 +146,16 @@ class Solver(AbstractSolver):
         loss = loss_g_gan.cuda()
 
         # Cycle consistency loss
-        loss_g_gc = self.criterionCycle(real_usps, real_mnist, fake_usps, fake_mnist, self.G_UM, self.G_MU)
-        loss_g_gc *= self.config.lambda_gc
-        loss += loss_g_gc.cuda()
+        loss_g_cycle = self.criterionCycle(real_usps, real_mnist, fake_usps, fake_mnist, self.G_UM, self.G_MU)
+        loss_g_cycle *= self.config.lambda_cycle
+        loss += loss_g_cycle.cuda()
 
         # Reconstruction loss: CycleGAN version
         if self.config.lambda_reconst > 0:
-            loss_g_idt = 0.5 * self.criterionReconst(self.G_UM(real_mnist), real_mnist)
-            loss_g_idt += 0.5 * self.criterionReconst(self.G_MU(real_usps), real_usps)
-            loss_g_idt *= self.config.lambda_reconst
-            loss += loss_g_idt.cuda()
+            loss_g_reconst = 0.5 * self.criterionReconst(self.G_UM(real_mnist), real_mnist)
+            loss_g_reconst += 0.5 * self.criterionReconst(self.G_MU(real_usps), real_usps)
+            loss_g_reconst *= self.config.lambda_reconst
+            loss += loss_g_reconst.cuda()
 
         # if self.config.lambda_dist > 0:
         #     ####

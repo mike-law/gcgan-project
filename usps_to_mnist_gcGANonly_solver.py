@@ -113,7 +113,7 @@ class Solver(AbstractSolver):
                     d_acc_real_mnist = d_correct_real / mnist_processed * 100
                     d_acc_fake_mnist = d_correct_fake / usps_processed * 100
                     self.report_results(iter_count, n_iters, loss_D_avg, loss_G_avg, fake_mnist_class_acc,
-                                        d_acc_real_mnist, d_acc_fake_mnist, self.f(real_usps), f_fake_mnist)
+                                        d_acc_real_mnist, d_acc_fake_mnist, real_usps, fake_mnist)
                     loss_D_sum, loss_G_sum = 0, 0
                     d_correct_real, d_correct_fake = 0, 0
                     correctly_labelled, usps_processed, mnist_processed = 0, 0, 0
@@ -194,6 +194,12 @@ class Solver(AbstractSolver):
         inv_idx = torch.arange(self.config.image_size-1, -1, -1).long().cuda()
         return torch.index_select(tensor, 2, inv_idx)
 
+    def noiser(self, img_batch):
+        noise = torch.randn_like(img_batch)
+        noise = noise * np.sqrt(self.config.noise_var)
+        noise = noise.cuda()
+        return img_batch + noise
+
     def get_geo_transform(self, transform_id):
         """ Returns f and f^-1 """
         if transform_id == 0:
@@ -208,10 +214,12 @@ class Solver(AbstractSolver):
         elif transform_id == 3:
             return self.vf, self.vf
         elif transform_id == 4:
-            def noiser(img_batch):
-                noise = torch.randn_like(img_batch)
-                noise = noise * np.sqrt(self.config.noise_var)
-                noise = noise.cuda()
-                return img_batch + noise
             idt = lambda img: img
-            return noiser, idt  # possible to make it so that f^-1 removes the noise added from noiser?
+            return self.noiser, idt  # possible to make it so that f^-1 removes the noise added from noiser?
+        elif transform_id == 5:
+            transf = lambda img: self.noiser(self.rot90(img, 0))
+            inv = lambda img: self.rot90(img, 1)
+            return transf, inv
+        elif transform_id == 6:
+            transf = lambda img: self.noiser(self.rot180(img))
+            return transf, self.rot180

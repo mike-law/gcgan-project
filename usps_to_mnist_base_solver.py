@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 import pickle
 import numpy as np
 import sys
+import csv
 
 
 class AbstractSolver(ABC):
@@ -113,7 +114,7 @@ class AbstractSolver(ABC):
         if self.latest_plot:
             plt.close(self.latest_plot)
         with torch.no_grad():
-            fig = plt.figure(figsize=(4, 6))
+            fig = plt.figure(figsize=(6, 6))
             gs = fig.add_gridspec(3, 2, width_ratios=[1, 4], height_ratios=[2, 1, 1])
             ax0 = fig.add_subplot(gs[:, 0])
             ax1 = fig.add_subplot(gs[0, 1])
@@ -187,8 +188,9 @@ class AbstractSolver(ABC):
             if self.config.lambda_gc > 0:
                 f.write("GcGAN config:\n")
                 f.write(f"geometry = {self.config.geometry}\n")
-                if self.config.geometry == 4:
+                if self.config.geometry in [4, 5, 6]:
                     f.write(f"noise_var = {self.config.noise_var}\n")
+                f.write(f"separate_G = {self.config.separate_G}\n")
                 f.write("\n")
 
             f.write("HYPERPARAMETERS\n")
@@ -225,3 +227,11 @@ class AbstractSolver(ABC):
 
             sample_imgs_path = path + "/sample_translations.png"
             fig.savefig(sample_imgs_path)
+
+        # log result in testlog.csv
+        with open('testlog.csv', 'a') as f:
+            writer = csv.writer(f)
+            row = [path, self.config.lambda_gan, self.config.lambda_cycle, self.config.lambda_gc,
+                   self.config.lambda_reconst, self.config.lambda_dist, self.config.geometry, self.config.noise_var,
+                   self.classifier_accuracies[-1]]
+            writer.writerow(row)

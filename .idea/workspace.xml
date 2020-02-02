@@ -154,6 +154,9 @@
       <module name="gcgan" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -250,6 +253,11 @@
       <workItem from="1579960691185" duration="1401000" />
       <workItem from="1580001632774" duration="3148000" />
       <workItem from="1580438752586" duration="6486000" />
+      <workItem from="1580451413613" duration="3119000" />
+      <workItem from="1580539331927" duration="933000" />
+      <workItem from="1580613571581" duration="1529000" />
+      <workItem from="1580641564572" duration="904000" />
+      <workItem from="1580642591272" duration="13000" />
     </task>
     <servers />
   </component>
@@ -337,11 +345,11 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="968" height="528" key="XDebugger.FullValuePopup/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578280961751" />
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1580438752557">
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1580641564614">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1580438752557" />
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580001632798" />
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1580539326518" />
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580641564614" />
     <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1579751371438" />
     <state x="2543" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1579011695853">
       <screen x="1920" y="0" width="1920" height="1040" />

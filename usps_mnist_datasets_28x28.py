@@ -11,15 +11,11 @@ from random import shuffle
 from PIL import Image
 
 """
-For now, using the 28x28 version requires having the unscaled USPS gallery saved in the same
+The USPSDatasetA28x28 dataset creator requires having the unscaled USPS gallery saved in the same
 directory as this script. You can find it here https://github.com/darshanbagul/USPS_Digit_Classification
-"""
 
-std_transform = transforms.Compose([
-        transforms.Resize((28, 28)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,)),
-    ])
+The USPSDatasetB28x28 creator simply loads the images from a pkl.gz file
+"""
 
 
 class USPSDatasetA28x28(data.Dataset):
@@ -100,6 +96,11 @@ class USPSDatasetB28x28(data.Dataset):
 
 def get_loaders(config):
     # Get train loaders
+    std_transform = transforms.Compose([
+            transforms.Resize((28, 28)),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,)),
+        ])
     usps_spec = {'root': 'USPSdata',
                  'transforms': std_transform,
                  'max_imgs_per_digit': config.max_imgs_per_digit}

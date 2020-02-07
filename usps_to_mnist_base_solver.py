@@ -233,5 +233,5 @@ class AbstractSolver(ABC):
             writer = csv.writer(f)
             row = [path, self.config.lambda_gan, self.config.lambda_cycle, self.config.lambda_gc,
                    self.config.lambda_reconst, self.config.lambda_dist, self.config.geometry, self.config.noise_var,
-                   self.classifier_accuracies[-1]]
+                   self.config.separate_G, self.classifier_accuracies[-1]]
             writer.writerow(row)

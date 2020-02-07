@@ -61,7 +61,7 @@
       <recent name="C:\Users\mikel\PycharmProjects\test" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.usps_to_mnist_main">
+  <component name="RunManager" selected="Python.horse2zebra_main">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="gcgan" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -76,6 +76,47 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="horse2zebra_datasets" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="gcgan" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/horse2zebra_datasets.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="horse2zebra_main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="gcgan" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/horse2zebra_main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -100,28 +141,6 @@
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mnist_model.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="gcgan" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="C:\Users\mikel\PycharmProjects\test\usps_mnist_datasets.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
@@ -174,10 +193,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.horse2zebra_main" />
         <item itemvalue="Python.usps_to_mnist_main" />
+        <item itemvalue="Python.horse2zebra_datasets" />
         <item itemvalue="Python.mnist_model" />
         <item itemvalue="Python.usps_datasets" />
-        <item itemvalue="Python.test" />
       </list>
     </recent_temporary>
   </component>
@@ -258,6 +278,10 @@
       <workItem from="1580613571581" duration="1529000" />
       <workItem from="1580641564572" duration="904000" />
       <workItem from="1580642591272" duration="13000" />
+      <workItem from="1580870519981" duration="8929000" />
+      <workItem from="1580879689016" duration="7958000" />
+      <workItem from="1581052154644" duration="1022000" />
+      <workItem from="1581057835292" duration="5223000" />
     </task>
     <servers />
   </component>
@@ -299,38 +323,38 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2718" y="225" key="Github.UntrackedFilesDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578498544544" />
-    <state width="1877" height="348" key="GridCell.Tab.0.bottom" timestamp="1578383909634">
+    <state width="1877" height="348" key="GridCell.Tab.0.bottom" timestamp="1580876675756">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="348" key="GridCell.Tab.0.bottom/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578383909634" />
-    <state width="1877" height="348" key="GridCell.Tab.0.center" timestamp="1578383909634">
+    <state width="1877" height="348" key="GridCell.Tab.0.bottom/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580876675756" />
+    <state width="1877" height="348" key="GridCell.Tab.0.center" timestamp="1580876675756">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="348" key="GridCell.Tab.0.center/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578383909634" />
-    <state width="1877" height="348" key="GridCell.Tab.0.left" timestamp="1578383909634">
+    <state width="1877" height="348" key="GridCell.Tab.0.center/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580876675756" />
+    <state width="1877" height="348" key="GridCell.Tab.0.left" timestamp="1580876675755">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="348" key="GridCell.Tab.0.left/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578383909634" />
-    <state width="1877" height="348" key="GridCell.Tab.0.right" timestamp="1578383909634">
+    <state width="1877" height="348" key="GridCell.Tab.0.left/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580876675755" />
+    <state width="1877" height="348" key="GridCell.Tab.0.right" timestamp="1580876675756">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="348" key="GridCell.Tab.0.right/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578383909634" />
-    <state width="1877" height="348" key="GridCell.Tab.1.bottom" timestamp="1578383909635">
+    <state width="1877" height="348" key="GridCell.Tab.0.right/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580876675756" />
+    <state width="1877" height="348" key="GridCell.Tab.1.bottom" timestamp="1580876675756">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="348" key="GridCell.Tab.1.bottom/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578383909635" />
-    <state width="1877" height="348" key="GridCell.Tab.1.center" timestamp="1578383909635">
+    <state width="1877" height="348" key="GridCell.Tab.1.bottom/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580876675756" />
+    <state width="1877" height="348" key="GridCell.Tab.1.center" timestamp="1580876675756">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="348" key="GridCell.Tab.1.center/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578383909635" />
-    <state width="1877" height="348" key="GridCell.Tab.1.left" timestamp="1578383909634">
+    <state width="1877" height="348" key="GridCell.Tab.1.center/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580876675756" />
+    <state width="1877" height="348" key="GridCell.Tab.1.left" timestamp="1580876675756">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="348" key="GridCell.Tab.1.left/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578383909634" />
-    <state width="1877" height="348" key="GridCell.Tab.1.right" timestamp="1578383909635">
+    <state width="1877" height="348" key="GridCell.Tab.1.left/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580876675756" />
+    <state width="1877" height="348" key="GridCell.Tab.1.right" timestamp="1580876675756">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="348" key="GridCell.Tab.1.right/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578383909635" />
+    <state width="1877" height="348" key="GridCell.Tab.1.right/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580876675756" />
     <state x="2381" y="162" key="SettingsEditor" timestamp="1578712434855">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -345,11 +369,11 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="968" height="528" key="XDebugger.FullValuePopup/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578280961751" />
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1580641564614">
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1581060867574">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1580539326518" />
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580641564614" />
+    <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1581060867574" />
     <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1579751371438" />
     <state x="2543" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1579011695853">
       <screen x="1920" y="0" width="1920" height="1040" />
@@ -359,5 +383,6 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/gcgan$usps_to_mnist_main.coverage" NAME="usps_to_mnist_main Coverage Results" MODIFIED="1578289330322" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/test$test.coverage" NAME="test Coverage Results" MODIFIED="1578081249113" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/gcgan$horse2zebra_main.coverage" NAME="horse2zebra_main Coverage Results" MODIFIED="1580876670717" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

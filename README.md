@@ -4,8 +4,10 @@ This repository contains source code for various experiments with [generative ad
 
 A starting point involves translating handwritten digit images from the USPS style into the MNIST style, while retaining the content of these images (i.e. such that the digit itself is invariant via the translation). Several GAN variants are mixed and matched to examine their individual and collective power in such a translation task.
 
+As of February 2020 I have extended the code to accommodate for general image-to-image translation tasks, e.g. horse2zebra from the [CycleGAN](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) datasets.
+
 # Acknowledgments
 
 My code is sprinkled here and there with ideas from the source code repository associated with the aforementioned paper on GcGANs. It can be accessed [here](https://github.com/hufu6371/GcGAN).
 
-I would also like to thank [Dr. Mingming Gong](https://mingming-gong.github.io/index.html) (a co-first author of the GcGAN paper) for his excellent supervision throughout the duration of this project.
+I would also like to thank [Dr. Mingming Gong](https://mingming-gong.github.io/index.html) (a co-first author of the GcGAN paper) for his excellent supervision throughout the duration of this project (and beyond).

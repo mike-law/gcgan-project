@@ -1,4 +1,4 @@
-MNIST/
+usps2mnist/MNIST/
 USPSdata/
 models/
 testruns/

@@ -29,7 +29,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1VtleTqqfZPmcwQlZkS2qHiDSx7" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -49,19 +49,22 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="web.server" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\git projects\gcgan-project" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/usps2mnist/data" />
+      <recent name="$PROJECT_DIR$/usps2mnist" />
+      <recent name="$PROJECT_DIR$" />
       <recent name="E:\git projects" />
       <recent name="E:\git projects\gcgan-project" />
-      <recent name="C:\Users\mikel\PycharmProjects\test" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="E:\git projects\gcgan-project" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.horse2zebra_main">
+  <component name="RunManager" selected="Python.usps2mnist_main">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="gcgan" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -147,20 +150,17 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="usps_datasets" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="usps2mnist_main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="gcgan" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="C:\Users\mikel\PycharmProjects\test\usps_mnist_datasets.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/usps2mnist_main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -193,11 +193,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.usps2mnist_main" />
         <item itemvalue="Python.horse2zebra_main" />
         <item itemvalue="Python.usps_to_mnist_main" />
         <item itemvalue="Python.horse2zebra_datasets" />
         <item itemvalue="Python.mnist_model" />
-        <item itemvalue="Python.usps_datasets" />
       </list>
     </recent_temporary>
   </component>
@@ -282,6 +282,14 @@
       <workItem from="1580879689016" duration="7958000" />
       <workItem from="1581052154644" duration="1022000" />
       <workItem from="1581057835292" duration="5223000" />
+      <workItem from="1582341546973" duration="276000" />
+      <workItem from="1582342437317" duration="4000" />
+      <workItem from="1582342712802" duration="25000" />
+      <workItem from="1582350676253" duration="182000" />
+      <workItem from="1582373272571" duration="5000" />
+      <workItem from="1582373287097" duration="10525000" />
+      <workItem from="1582501142598" duration="11062000" />
+      <workItem from="1582622606485" duration="4743000" />
     </task>
     <servers />
   </component>
@@ -307,10 +315,12 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2505" y="116" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578498633391" />
-    <state x="2659" y="294" key="FileChooserDialogImpl" timestamp="1578498413136">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state x="452" y="300" width="424" height="484" key="FileChooserDialogImpl" timestamp="1582377497993">
+      <screen x="0" y="27" width="1920" height="1053" />
     </state>
     <state x="2659" y="294" key="FileChooserDialogImpl/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578498413136" />
+    <state x="452" y="300" key="FileChooserDialogImpl/0.27.1920.1053@0.27.1920.1053" timestamp="1582377497993" />
+    <state x="503" y="300" width="424" height="484" key="FileChooserDialogImpl/67.27.1853.1053@67.27.1853.1053" timestamp="1582341806220" />
     <state x="2656" y="386" key="Github.CreatePullRequestDialog" timestamp="1578498595887">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -355,12 +365,14 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="1877" height="348" key="GridCell.Tab.1.right/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1580876675756" />
-    <state x="2381" y="162" key="SettingsEditor" timestamp="1578712434855">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state x="461" y="191" width="1022" height="736" key="SettingsEditor" timestamp="1582378842971">
+      <screen x="0" y="27" width="1920" height="1053" />
     </state>
     <state x="2221" y="0" key="SettingsEditor/0.0.1536.824/1920.0.1280.680@1920.0.1280.680" timestamp="1578170243706" />
     <state x="2381" y="162" key="SettingsEditor/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578712434855" />
     <state x="361" y="0" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1578180348609" />
+    <state x="461" y="191" width="1022" height="736" key="SettingsEditor/0.27.1920.1053@0.27.1920.1053" timestamp="1582378842971" />
+    <state x="512" y="191" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1582341821786" />
     <state x="2472" y="252" key="Vcs.Push.Dialog.v2" timestamp="1578498586466">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
@@ -369,20 +381,22 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state width="968" height="528" key="XDebugger.FullValuePopup/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578280961751" />
-    <state x="470" y="236" key="com.intellij.ide.util.TipDialog" timestamp="1581060867574">
-      <screen x="0" y="0" width="1536" height="824" />
+    <state x="588" y="329" key="com.intellij.ide.util.TipDialog" timestamp="1582622615422">
+      <screen x="0" y="27" width="1920" height="1053" />
     </state>
     <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@0.0.1536.824" timestamp="1580539326518" />
     <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1581060867574" />
     <state x="470" y="236" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1579751371438" />
+    <state x="588" y="329" key="com.intellij.ide.util.TipDialog/0.27.1920.1053@0.27.1920.1053" timestamp="1582622615422" />
+    <state x="634" y="329" key="com.intellij.ide.util.TipDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1582342713709" />
     <state x="2543" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1579011695853">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2543" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1579011695853" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/gcgan$usps_to_mnist_main.coverage" NAME="usps_to_mnist_main Coverage Results" MODIFIED="1578289330322" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/test$test.coverage" NAME="test Coverage Results" MODIFIED="1578081249113" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/gcgan$horse2zebra_main.coverage" NAME="horse2zebra_main Coverage Results" MODIFIED="1580876670717" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/gcgan$usps_to_mnist_main.coverage" NAME="usps_to_mnist_main Coverage Results" MODIFIED="1578289330322" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

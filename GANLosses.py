@@ -50,7 +50,7 @@ class GCLoss(nn.Module):
         self.base_loss = nn.L1Loss()
 
     def __call__(self, target, f_target, f, f_inv):
-        return self.base_loss(f_inv(f_target), target) + self.base_loss(f(target), f_target)
+        return 0.5 * (self.base_loss(f_inv(f_target), target) + self.base_loss(f(target), f_target))
 
 
 class ReconstLoss(nn.Module):

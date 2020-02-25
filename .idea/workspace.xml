@@ -41,6 +41,7 @@
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
@@ -311,10 +312,11 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2610" y="266" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578498088190" />
-    <state x="2505" y="116" key="CommitChangelistDialog2" timestamp="1578498633391">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state x="585" y="144" width="865" height="918" key="CommitChangelistDialog2" timestamp="1582631824892">
+      <screen x="0" y="27" width="1920" height="1053" />
     </state>
     <state x="2505" y="116" key="CommitChangelistDialog2/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578498633391" />
+    <state x="585" y="144" width="865" height="918" key="CommitChangelistDialog2/0.27.1920.1053@0.27.1920.1053" timestamp="1582631824892" />
     <state x="452" y="300" width="424" height="484" key="FileChooserDialogImpl" timestamp="1582377497993">
       <screen x="0" y="27" width="1920" height="1053" />
     </state>
@@ -373,10 +375,11 @@
     <state x="361" y="0" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1578180348609" />
     <state x="461" y="191" width="1022" height="736" key="SettingsEditor/0.27.1920.1053@0.27.1920.1053" timestamp="1582378842971" />
     <state x="512" y="191" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1582341821786" />
-    <state x="2472" y="252" key="Vcs.Push.Dialog.v2" timestamp="1578498586466">
-      <screen x="1920" y="0" width="1920" height="1040" />
+    <state x="552" y="282" width="800" height="534" key="Vcs.Push.Dialog.v2" timestamp="1582631866967">
+      <screen x="0" y="27" width="1920" height="1053" />
     </state>
     <state x="2472" y="252" key="Vcs.Push.Dialog.v2/0.0.1536.824/1920.0.1920.1040@1920.0.1920.1040" timestamp="1578498586466" />
+    <state x="552" y="282" width="800" height="534" key="Vcs.Push.Dialog.v2/0.27.1920.1053@0.27.1920.1053" timestamp="1582631866967" />
     <state width="968" height="528" key="XDebugger.FullValuePopup" timestamp="1578280961751">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
